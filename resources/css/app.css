@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Anton', ui-sans-serif, sans-serif;
+
+    /* Noir Stade — base neutrals, night-match feel */
+    --color-stade-950: #0a0c0e;
+    --color-stade-900: #121519;
+    --color-stade-800: #1b1f24;
+    --color-stade-700: #2a2f36;
+    --color-stade-600: #454c55;
+
+    /* Or Champion — primary brand accent */
+    --color-or-400: #ddbb4e;
+    --color-or-500: #c9a227;
+    --color-or-600: #a9840f;
+
+    /* Ivoire — warm off-white for dark surfaces */
+    --color-ivoire-100: #f5f2ea;
+    --color-ivoire-300: #d9d3c2;
+
+    /* Alert vocabulary, shared with the delivery-alert system */
+    --color-retard-500: #c1432d;
+    --color-retard-600: #a2361f;
+    --color-approche-500: #e08a2e;
+    --color-approche-600: #bd6f1f;
+}
