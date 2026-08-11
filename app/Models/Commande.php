@@ -11,6 +11,14 @@ class Commande extends Model
 {
     use HasFactory;
 
+    public const STATUTS = [
+        'en_attente' => 'En attente',
+        'en_preparation' => 'En préparation',
+        'prete' => 'Prête',
+        'livree' => 'Livrée',
+        'annulee' => 'Annulée',
+    ];
+
     protected $fillable = [
         'reference',
         'client_id',

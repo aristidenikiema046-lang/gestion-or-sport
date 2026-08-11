@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LivraisonController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -12,9 +14,11 @@ Route::get('/', function () {
     return redirect()->route(auth()->user()->homeRouteName());
 })->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'role:admin'])->name('dashboard');
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
+    Route::get('/commandes/{commande}', [CommandeController::class, 'show'])->name('commandes.show');
+});
 
 Route::middleware(['auth', 'role:livreur'])->group(function () {
     Route::get('/livraisons', [LivraisonController::class, 'index'])->name('livraisons.index');

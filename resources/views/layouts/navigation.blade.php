@@ -16,6 +16,9 @@
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             Tableau de bord
                         </x-nav-link>
+                        <x-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.*')">
+                            Commandes
+                        </x-nav-link>
                     @else
                         <x-nav-link :href="route('livraisons.index')" :active="request()->routeIs('livraisons.index')">
                             Mes livraisons
@@ -82,6 +85,9 @@
             @if (Auth::user()->isAdmin())
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     Tableau de bord
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.*')">
+                    Commandes
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('livraisons.index')" :active="request()->routeIs('livraisons.index')">
