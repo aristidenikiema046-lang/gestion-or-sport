@@ -4,8 +4,9 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}">
+                <div class="shrink-0 flex items-center gap-2">
+                    <a href="{{ route('home') }}" class="flex items-center gap-2">
+                        <x-brand-mark class="h-8 w-8 text-or-500" />
                         <x-application-logo class="text-xl text-ivoire-100" />
                     </a>
                 </div>
