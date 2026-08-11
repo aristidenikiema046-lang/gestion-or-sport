@@ -37,3 +37,7 @@
     --color-livree-500: #3f9142;
     --color-livree-600: #2e7d32;
 }
+
+[x-cloak] {
+    display: none !important;
+}

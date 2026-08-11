@@ -17,6 +17,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
+    Route::get('/commandes/creer', [CommandeController::class, 'create'])->name('commandes.create');
+    Route::post('/commandes', [CommandeController::class, 'store'])->name('commandes.store');
     Route::get('/commandes/{commande}', [CommandeController::class, 'show'])->name('commandes.show');
 });
 

@@ -46,6 +46,18 @@ class Commande extends Model
         return $this->belongsTo(Client::class);
     }
 
+    // Prochaine référence disponible, au format CMD-0001.
+    public static function prochaineReference(): string
+    {
+        $dernier = static::query()
+            ->where('reference', 'like', 'CMD-%')
+            ->get(['reference'])
+            ->map(fn (self $commande) => (int) substr($commande->reference, 4))
+            ->max() ?? 0;
+
+        return 'CMD-'.str_pad((string) ($dernier + 1), 4, '0', STR_PAD_LEFT);
+    }
+
     // Est-ce que la commande est en retard ?
     public function getEnRetardAttribute(): bool
     {
@@ -60,6 +72,6 @@ class Commande extends Model
         return $this->statut !== 'livree'
             && $this->statut !== 'annulee'
             && $this->date_livraison_prevue->isFuture()
-            && $this->date_livraison_prevue->diffInDays(Carbon::now()) <= 2;
+            && $this->date_livraison_prevue->diffInDays(Carbon::now(), absolute: true) <= 2;
     }
 }

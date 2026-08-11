@@ -1,8 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-display text-2xl text-stade-950 tracking-tight">
-            Commandes
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-display text-2xl text-stade-950 tracking-tight">
+                Commandes
+            </h2>
+            <a href="{{ route('commandes.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-or-500 px-4 py-2 text-sm font-semibold text-stade-950 hover:bg-or-400 focus:outline-none focus:ring-2 focus:ring-or-500/50 focus:ring-offset-2 transition">
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+                Nouvelle commande
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-12">
