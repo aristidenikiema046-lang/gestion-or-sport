@@ -22,16 +22,6 @@ class DemoSeeder extends Seeder
             ]
         );
 
-        // Un livreur de test
-        User::firstOrCreate(
-            ['email' => 'livreur@orsportswear.com'],
-            [
-                'name' => 'Livreur OR SPORT',
-                'password' => Hash::make('password'),
-                'role' => 'livreur',
-            ]
-        );
-
         // Un client de test
         $client = Client::firstOrCreate([
             'nom' => 'Kouassi',

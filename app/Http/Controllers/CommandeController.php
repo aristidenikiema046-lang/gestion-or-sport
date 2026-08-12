@@ -95,4 +95,61 @@ class CommandeController extends Controller
             ->route('commandes.show', $commande)
             ->with('success', "Commande {$commande->reference} créée avec succès.");
     }
+
+    public function livrees(Request $request): View
+    {
+        $client = $request->string('client')->trim()->value() ?: null;
+        $modele = $request->string('modele')->trim()->value() ?: null;
+        $dateDebut = $request->string('date_debut')->value() ?: null;
+        $dateFin = $request->string('date_fin')->value() ?: null;
+
+        $commandes = Commande::query()
+            ->with('client')
+            ->where('statut', 'livree')
+            ->when($client, function ($query) use ($client) {
+                $query->whereHas('client', function ($sub) use ($client) {
+                    $sub->where('nom', 'like', "%{$client}%")
+                        ->orWhere('prenom', 'like', "%{$client}%")
+                        ->orWhereRaw("CONCAT(prenom, ' ', nom) LIKE ?", ["%{$client}%"])
+                        ->orWhereRaw("CONCAT(nom, ' ', prenom) LIKE ?", ["%{$client}%"]);
+                });
+            })
+            ->when($modele, fn ($query) => $query->where('modele_maillot', 'like', "%{$modele}%"))
+            ->when($dateDebut, fn ($query) => $query->whereDate('date_livraison_effective', '>=', $dateDebut))
+            ->when($dateFin, fn ($query) => $query->whereDate('date_livraison_effective', '<=', $dateFin))
+            ->orderByDesc('date_livraison_effective')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('commandes.livrees', [
+            'commandes' => $commandes,
+            'client' => $client,
+            'modele' => $modele,
+            'dateDebut' => $dateDebut,
+            'dateFin' => $dateFin,
+        ]);
+    }
+
+    public function marquerLivree(Commande $commande): RedirectResponse
+    {
+        if ($commande->statut !== 'livree') {
+            $commande->update([
+                'statut' => 'livree',
+                'date_livraison_effective' => now(),
+            ]);
+        }
+
+        return redirect()
+            ->route('commandes.show', $commande)
+            ->with('success', "Commande {$commande->reference} marquée comme livrée.");
+    }
+
+    public function bonLivraison(Commande $commande): View
+    {
+        $commande->load('client');
+
+        return view('commandes.bon-livraison', [
+            'commande' => $commande,
+        ]);
+    }
 }

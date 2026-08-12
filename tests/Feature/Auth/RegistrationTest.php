@@ -17,15 +17,6 @@ class RegistrationTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    public function test_registration_screen_is_unreachable_by_livreurs(): void
-    {
-        $livreur = User::factory()->create(['role' => 'livreur']);
-
-        $response = $this->actingAs($livreur)->get('/register');
-
-        $response->assertForbidden();
-    }
-
     public function test_registration_screen_can_be_rendered_by_admins(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -42,14 +33,13 @@ class RegistrationTest extends TestCase
         $response = $this->actingAs($admin)->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'role' => 'livreur',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',
-            'role' => 'livreur',
+            'role' => 'admin',
         ]);
         $this->assertAuthenticatedAs($admin);
         $response->assertRedirect(route('dashboard', absolute: false));

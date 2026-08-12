@@ -35,13 +35,8 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function isLivreur(): bool
-    {
-        return $this->role === 'livreur';
-    }
-
     public function homeRouteName(): string
     {
-        return $this->isAdmin() ? 'dashboard' : 'livraisons.index';
+        return 'dashboard';
     }
 }

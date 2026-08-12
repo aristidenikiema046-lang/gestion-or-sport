@@ -17,12 +17,11 @@
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             Tableau de bord
                         </x-nav-link>
-                        <x-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.*')">
+                        <x-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.index') || request()->routeIs('commandes.create') || request()->routeIs('commandes.show')">
                             Commandes
                         </x-nav-link>
-                    @else
-                        <x-nav-link :href="route('livraisons.index')" :active="request()->routeIs('livraisons.index')">
-                            Mes livraisons
+                        <x-nav-link :href="route('commandes.livrees')" :active="request()->routeIs('commandes.livrees')">
+                            Historique des livraisons
                         </x-nav-link>
                     @endif
                 </div>
@@ -87,12 +86,11 @@
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     Tableau de bord
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.*')">
+                <x-responsive-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.index') || request()->routeIs('commandes.create') || request()->routeIs('commandes.show')">
                     Commandes
                 </x-responsive-nav-link>
-            @else
-                <x-responsive-nav-link :href="route('livraisons.index')" :active="request()->routeIs('livraisons.index')">
-                    Mes livraisons
+                <x-responsive-nav-link :href="route('commandes.livrees')" :active="request()->routeIs('commandes.livrees')">
+                    Historique des livraisons
                 </x-responsive-nav-link>
             @endif
         </div>

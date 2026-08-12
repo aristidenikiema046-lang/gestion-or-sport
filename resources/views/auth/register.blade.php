@@ -3,7 +3,7 @@
         <h2 class="font-display text-2xl text-stade-950 tracking-tight">
             Ajouter un compte
         </h2>
-        <p class="mt-1 text-sm text-stade-600">Créez un accès administrateur ou livreur pour un membre de l'équipe.</p>
+        <p class="mt-1 text-sm text-stade-600">Créez un accès administrateur pour un membre de l'équipe.</p>
     </x-slot>
 
     <div class="py-10">
@@ -22,17 +22,6 @@
                         <x-input-label for="email" value="Adresse e-mail" />
                         <x-text-input id="email" class="block mt-1.5 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="prenom.nom@orsportswear.com" />
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                    </div>
-
-                    <div>
-                        <x-input-label for="role" value="Rôle" />
-                        <select id="role" name="role" required
-                            class="block mt-1.5 w-full rounded-lg border border-stade-700/15 bg-white text-stade-950 shadow-sm focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30">
-                            <option value="" disabled {{ old('role') ? '' : 'selected' }}>Sélectionner un rôle</option>
-                            <option value="admin" @selected(old('role') === 'admin')>Administrateur / Gérant</option>
-                            <option value="livreur" @selected(old('role') === 'livreur')>Livreur</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('role')" class="mt-2" />
                     </div>
 
                     <div>
