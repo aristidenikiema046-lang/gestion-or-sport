@@ -81,18 +81,28 @@
                             Bon de livraison
                         </a>
                     </div>
+                    <div>
+                        <a href="{{ route('commandes.edit', $commande) }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-stade-700/20 bg-white px-6 py-3 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
+                            Modifier la commande
+                        </a>
+                    </div>
                 @else
-                    <form method="POST" action="{{ route('commandes.livrer', $commande) }}"
-                        onsubmit="return confirm('Marquer la commande {{ $commande->reference }} comme livrée ?');">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-livree-500 px-6 py-3 text-sm font-semibold text-white hover:bg-livree-600 focus:outline-none focus:ring-2 focus:ring-livree-500/50 focus:ring-offset-2 transition">
-                            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                            </svg>
-                            Marquer comme livré
-                        </button>
-                    </form>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <form method="POST" action="{{ route('commandes.livrer', $commande) }}"
+                            onsubmit="return confirm('Marquer la commande {{ $commande->reference }} comme livrée ?');" class="sm:flex-1">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-livree-500 px-6 py-3 text-sm font-semibold text-white hover:bg-livree-600 focus:outline-none focus:ring-2 focus:ring-livree-500/50 focus:ring-offset-2 transition">
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                </svg>
+                                Marquer comme livré
+                            </button>
+                        </form>
+                        <a href="{{ route('commandes.edit', $commande) }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-stade-700/20 bg-white px-6 py-3 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
+                            Modifier
+                        </a>
+                    </div>
                 @endif
 
                 <div class="pt-4 border-t border-stade-950/5">

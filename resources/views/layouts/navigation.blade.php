@@ -17,7 +17,7 @@
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             Tableau de bord
                         </x-nav-link>
-                        <x-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.index') || request()->routeIs('commandes.create') || request()->routeIs('commandes.show')">
+                        <x-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.*') && ! request()->routeIs('commandes.livrees')">
                             Commandes
                         </x-nav-link>
                         <x-nav-link :href="route('commandes.livrees')" :active="request()->routeIs('commandes.livrees')">
@@ -86,7 +86,7 @@
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     Tableau de bord
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.index') || request()->routeIs('commandes.create') || request()->routeIs('commandes.show')">
+                <x-responsive-nav-link :href="route('commandes.index')" :active="request()->routeIs('commandes.*') && ! request()->routeIs('commandes.livrees')">
                     Commandes
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('commandes.livrees')" :active="request()->routeIs('commandes.livrees')">

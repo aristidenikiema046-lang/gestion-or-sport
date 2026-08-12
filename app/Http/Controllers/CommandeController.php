@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCommandeRequest;
+use App\Http\Requests\UpdateCommandeRequest;
 use App\Models\Client;
 use App\Models\Commande;
 use Illuminate\Http\RedirectResponse;
@@ -94,6 +95,59 @@ class CommandeController extends Controller
         return redirect()
             ->route('commandes.show', $commande)
             ->with('success', "Commande {$commande->reference} créée avec succès.");
+    }
+
+    public function edit(Commande $commande): View
+    {
+        $commande->load('client');
+
+        return view('commandes.edit', [
+            'commande' => $commande,
+            'clients' => Client::orderBy('nom')->orderBy('prenom')->get(),
+        ]);
+    }
+
+    public function update(UpdateCommandeRequest $request, Commande $commande): RedirectResponse
+    {
+        $donnees = $request->validated();
+
+        DB::transaction(function () use ($donnees, $request, $commande) {
+            if ($donnees['client_mode'] === 'nouveau') {
+                $client = Client::create([
+                    'nom' => $donnees['client_nom'],
+                    'prenom' => $donnees['client_prenom'],
+                    'telephone' => $donnees['client_telephone'],
+                    'adresse' => $donnees['client_adresse'],
+                ]);
+            } else {
+                $client = Client::findOrFail($donnees['client_id']);
+            }
+
+            $dateLivraisonEffective = $commande->date_livraison_effective;
+            if ($donnees['statut'] === 'livree') {
+                $dateLivraisonEffective ??= now();
+            } else {
+                $dateLivraisonEffective = null;
+            }
+
+            $commande->update([
+                'client_id' => $client->id,
+                'modele_maillot' => $donnees['modele_maillot'],
+                'taille' => $donnees['taille'],
+                'personnalisation_nom' => $donnees['personnalisation_nom'] ?? null,
+                'personnalisation_numero' => $donnees['personnalisation_numero'] ?? null,
+                'badge' => $request->boolean('badge'),
+                'quantite' => $donnees['quantite'],
+                'statut' => $donnees['statut'],
+                'date_commande' => $donnees['date_commande'],
+                'date_livraison_prevue' => $donnees['date_livraison_prevue'],
+                'date_livraison_effective' => $dateLivraisonEffective,
+            ]);
+        });
+
+        return redirect()
+            ->route('commandes.show', $commande)
+            ->with('success', "Commande {$commande->reference} mise à jour avec succès.");
     }
 
     public function livrees(Request $request): View

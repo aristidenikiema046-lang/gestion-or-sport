@@ -20,6 +20,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/commandes/livrees', [CommandeController::class, 'livrees'])->name('commandes.livrees');
     Route::post('/commandes', [CommandeController::class, 'store'])->name('commandes.store');
     Route::get('/commandes/{commande}', [CommandeController::class, 'show'])->name('commandes.show');
+    Route::get('/commandes/{commande}/modifier', [CommandeController::class, 'edit'])->name('commandes.edit');
+    Route::patch('/commandes/{commande}', [CommandeController::class, 'update'])->name('commandes.update');
     Route::patch('/commandes/{commande}/livrer', [CommandeController::class, 'marquerLivree'])->name('commandes.livrer');
     Route::get('/commandes/{commande}/bon-livraison', [CommandeController::class, 'bonLivraison'])->name('commandes.bon-livraison');
 });
