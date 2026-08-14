@@ -27,10 +27,17 @@ class DashboardController extends Controller
 
         $recentes = Commande::with('client')->latest()->take(8)->get();
 
+        $paiementsEnAttente = Commande::where('statut', '!=', 'annulee')
+            ->whereColumn('avance_versee', '<', 'montant_total')
+            ->with('client')
+            ->orderByRaw('(montant_total - avance_versee) DESC')
+            ->get();
+
         return view('dashboard', [
             'alertes' => $alertes,
             'parStatut' => $parStatut,
             'recentes' => $recentes,
+            'paiementsEnAttente' => $paiementsEnAttente,
             'vapidPublicKey' => config('webpush.vapid.public_key'),
         ]);
     }

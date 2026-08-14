@@ -14,7 +14,7 @@ class CommandeAlerte extends Notification
 
     public function __construct(
         public Commande $commande,
-        public string $type // 'retard', 'echeance' ou 'approche'
+        public string $type // 'retard', 'echeance', 'approche' ou 'rappel_semaine'
     ) {}
 
     public function via(object $notifiable): array
@@ -55,6 +55,7 @@ class CommandeAlerte extends Notification
         return match ($this->type) {
             'retard' => 'Livraison en retard',
             'echeance' => "Livraison prévue aujourd'hui",
+            'rappel_semaine' => 'Livraison dans une semaine',
             default => 'Livraison à venir',
         };
     }
@@ -64,6 +65,7 @@ class CommandeAlerte extends Notification
         return match ($this->type) {
             'retard' => "La commande {$this->commande->reference} ({$this->commande->client->nom_complet}) est en retard de livraison.",
             'echeance' => "La livraison de {$this->commande->reference} est prévue aujourd'hui.",
+            'rappel_semaine' => "La livraison de {$this->commande->reference} est prévue dans une semaine.",
             default => "La commande {$this->commande->reference} ({$this->commande->client->nom_complet}) doit être livrée bientôt.",
         };
     }

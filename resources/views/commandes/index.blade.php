@@ -18,7 +18,7 @@
 
             {{-- Recherche et filtres --}}
             <form method="GET" action="{{ route('commandes.index') }}" class="bg-white rounded-2xl border border-stade-950/5 shadow-sm p-4 sm:p-5">
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3">
                     <label for="q" class="sr-only">Rechercher une commande</label>
                     <div class="relative flex-1">
                         <svg class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stade-600/50" viewBox="0 0 20 20" fill="currentColor">
@@ -38,11 +38,23 @@
                     <select
                         id="statut"
                         name="statut"
-                        class="border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 sm:w-56 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30"
+                        class="border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 sm:w-48 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30"
                     >
                         <option value="">Tous les statuts</option>
                         @foreach (\App\Models\Commande::STATUTS as $valeur => $label)
                             <option value="{{ $valeur }}" @selected($statutActif === $valeur)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+
+                    <label for="type_article" class="sr-only">Filtrer par type d'article</label>
+                    <select
+                        id="type_article"
+                        name="type_article"
+                        class="border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 sm:w-48 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30"
+                    >
+                        <option value="">Tous les types</option>
+                        @foreach (\App\Models\Commande::TYPES_ARTICLE as $valeur => $label)
+                            <option value="{{ $valeur }}" @selected($typeArticleActif === $valeur)>{{ $label }}</option>
                         @endforeach
                     </select>
 
@@ -51,7 +63,7 @@
                     </button>
                 </div>
 
-                @if($recherche || $statutActif)
+                @if($recherche || $statutActif || $typeArticleActif)
                     <div class="mt-3 flex items-center gap-2 text-sm">
                         <span class="text-stade-600">Filtres actifs :</span>
                         @if($recherche)
@@ -61,6 +73,11 @@
                         @endif
                         @if($statutActif)
                             <x-statut-badge :statut="$statutActif" />
+                        @endif
+                        @if($typeArticleActif)
+                            <span class="inline-flex items-center rounded-full bg-stade-950/5 px-2.5 py-1 text-xs font-medium text-stade-700">
+                                {{ $typeArticleActif }}
+                            </span>
                         @endif
                         <a href="{{ route('commandes.index') }}" class="text-or-600 hover:text-or-700 font-semibold">
                             Réinitialiser
@@ -77,7 +94,7 @@
                                 <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        @if($recherche || $statutActif)
+                        @if($recherche || $statutActif || $typeArticleActif)
                             <p class="font-medium text-stade-950">Aucune commande ne correspond à votre recherche</p>
                             <p class="text-sm text-stade-600 mt-1">Essayez un autre nom, une autre référence, ou réinitialisez les filtres.</p>
                             <a href="{{ route('commandes.index') }}" class="inline-block mt-4 text-sm font-semibold text-or-600 hover:text-or-700">
@@ -98,12 +115,15 @@
                                             <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
                                             <p class="text-xs text-stade-600/60 mt-0.5">{{ $commande->reference }}</p>
                                         </div>
-                                        <x-statut-badge :statut="$commande->statut" class="shrink-0" />
+                                        <div class="flex flex-col items-end gap-1.5 shrink-0">
+                                            <x-statut-badge :statut="$commande->statut" />
+                                            <x-statut-paiement-badge :statut="$commande->statut_paiement" />
+                                        </div>
                                     </div>
 
                                     <p class="mt-2.5 text-sm text-stade-700">
-                                        Qualité {{ $commande->qualite }}
-                                        <span class="text-stade-600/60">&middot; {{ $commande->modele }} &middot; Qté {{ $commande->quantite }}</span>
+                                        {{ $commande->type_article }}
+                                        <span class="text-stade-600/60">&middot; Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }} &middot; Qté {{ $commande->quantite }}</span>
                                     </p>
 
                                     <div class="mt-2.5 flex items-center justify-between gap-3">
@@ -133,10 +153,12 @@
                                 <tr class="text-left text-xs font-semibold text-stade-600/70 uppercase tracking-wide">
                                     <th class="px-6 py-3">Référence</th>
                                     <th class="px-6 py-3">Client</th>
+                                    <th class="px-6 py-3">Type</th>
                                     <th class="px-6 py-3">Qualité</th>
                                     <th class="px-6 py-3">Modèle</th>
                                     <th class="px-6 py-3">Qté</th>
                                     <th class="px-6 py-3">Statut</th>
+                                    <th class="px-6 py-3">Paiement</th>
                                     <th class="px-6 py-3">Livraison prévue</th>
                                     <th class="px-6 py-3"></th>
                                 </tr>
@@ -146,10 +168,12 @@
                                     <tr class="hover:bg-stade-950/[0.02] transition">
                                         <td class="px-6 py-4 font-medium text-stade-950 whitespace-nowrap">{{ $commande->reference }}</td>
                                         <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->client->nom_complet }}</td>
+                                        <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->type_article }}</td>
                                         <td class="px-6 py-4 text-stade-700">{{ $commande->qualite }}</td>
                                         <td class="px-6 py-4 text-stade-700">{{ $commande->modele }}</td>
                                         <td class="px-6 py-4 text-stade-700">{{ $commande->quantite }}</td>
                                         <td class="px-6 py-4"><x-statut-badge :statut="$commande->statut" /></td>
+                                        <td class="px-6 py-4"><x-statut-paiement-badge :statut="$commande->statut_paiement" /></td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center gap-1.5">
                                                 @if($commande->en_retard)

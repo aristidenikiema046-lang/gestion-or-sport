@@ -90,6 +90,7 @@
                 <table class="w-full mt-6 text-sm">
                     <thead>
                         <tr class="text-left text-xs uppercase tracking-wide text-stade-600/70 border-b border-stade-950/10">
+                            <th class="py-2 font-semibold whitespace-nowrap">Type d'article</th>
                             <th class="py-2 font-semibold whitespace-nowrap">Qualité</th>
                             <th class="py-2 font-semibold whitespace-nowrap">Modèle</th>
                             <th class="py-2 font-semibold whitespace-nowrap">Nom de l'équipe</th>
@@ -98,6 +99,7 @@
                     </thead>
                     <tbody>
                         <tr class="border-b border-stade-950/10">
+                            <td class="py-4 text-stade-950 font-medium">{{ $commande->type_article }}</td>
                             <td class="py-4 text-stade-950 font-medium">{{ $commande->qualite }}</td>
                             <td class="py-4 text-stade-700">{{ $commande->modele }}</td>
                             <td class="py-4 text-stade-700">{{ $commande->nom_equipe ?? '—' }}</td>

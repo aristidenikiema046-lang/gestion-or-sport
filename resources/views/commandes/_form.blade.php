@@ -64,12 +64,23 @@
         </div>
     </section>
 
-    {{-- Maillot --}}
+    {{-- Article --}}
     <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm p-6 sm:p-8">
-        <h3 class="font-display text-lg tracking-tight text-stade-950 mb-4">Détails du maillot</h3>
+        <h3 class="font-display text-lg tracking-tight text-stade-950 mb-4">Détails de l'article</h3>
 
         <div class="space-y-4">
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                    <x-input-label for="type_article" value="Type d'article" />
+                    <select id="type_article" name="type_article"
+                        class="mt-1 block w-full border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30 @error('type_article') border-retard-500 @enderror">
+                        <option value="">Choisir…</option>
+                        @foreach(\App\Models\Commande::TYPES_ARTICLE as $valeur => $label)
+                            <option value="{{ $valeur }}" @selected(old('type_article', $commande?->type_article) === $valeur)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('type_article')" class="mt-1" />
+                </div>
                 <div>
                     <x-input-label for="qualite" value="Qualité" />
                     <select id="qualite" name="qualite"
@@ -114,6 +125,40 @@
                 <x-text-input id="nom_equipe" name="nom_equipe" type="text" value="{{ old('nom_equipe', $commande?->nom_equipe) }}"
                     class="mt-1 block w-full @error('nom_equipe') border-retard-500 @enderror" />
                 <x-input-error :messages="$errors->get('nom_equipe')" class="mt-1" />
+            </div>
+        </div>
+    </section>
+
+    {{-- Paiement --}}
+    <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm p-6 sm:p-8"
+        x-data="{
+            montantTotal: {{ (float) old('montant_total', $commande?->montant_total ?? 0) }},
+            avanceVersee: {{ (float) old('avance_versee', $commande?->avance_versee ?? 0) }},
+            get resteAPayer() { return Math.max(0, this.montantTotal - this.avanceVersee); }
+        }">
+        <h3 class="font-display text-lg tracking-tight text-stade-950 mb-4">Paiement</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <x-input-label for="montant_total" value="Montant total (FCFA)" />
+                <x-text-input id="montant_total" name="montant_total" type="number" min="0" step="1"
+                    x-model.number="montantTotal"
+                    value="{{ old('montant_total', $commande?->montant_total) }}"
+                    class="mt-1 block w-full @error('montant_total') border-retard-500 @enderror" />
+                <x-input-error :messages="$errors->get('montant_total')" class="mt-1" />
+            </div>
+            <div>
+                <x-input-label for="avance_versee" value="Avance versée (FCFA)" />
+                <x-text-input id="avance_versee" name="avance_versee" type="number" min="0" step="1"
+                    x-model.number="avanceVersee"
+                    value="{{ old('avance_versee', $commande?->avance_versee ?? 0) }}"
+                    class="mt-1 block w-full @error('avance_versee') border-retard-500 @enderror" />
+                <x-input-error :messages="$errors->get('avance_versee')" class="mt-1" />
+            </div>
+            <div>
+                <x-input-label value="Reste à payer" />
+                <div class="mt-1 flex items-center h-[46px] px-3.5 rounded-lg border border-stade-700/15 bg-stade-950/[0.03] text-stade-950 font-semibold"
+                    x-text="resteAPayer.toLocaleString('fr-FR') + ' FCFA'"></div>
             </div>
         </div>
     </section>

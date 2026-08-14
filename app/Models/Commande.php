@@ -22,6 +22,7 @@ class Commande extends Model
     public const QUALITES = [
         'F1' => 'F1',
         'F2' => 'F2',
+        'F3' => 'F3',
     ];
 
     public const MODELES = [
@@ -29,15 +30,33 @@ class Commande extends Model
         'Couture' => 'Couture',
     ];
 
+    public const TYPES_ARTICLE = [
+        'Maillots' => 'Maillots',
+        'Tenue de sortie' => 'Tenue de sortie',
+        'Survêtement' => 'Survêtement',
+        'Sacs' => 'Sacs',
+        'Chaussettes' => 'Chaussettes',
+        'Tee-shirts' => 'Tee-shirts',
+    ];
+
+    public const STATUTS_PAIEMENT = [
+        'non_paye' => 'Non payé',
+        'acompte_verse' => 'Acompte versé',
+        'solde' => 'Soldé',
+    ];
+
     protected $fillable = [
         'reference',
         'client_id',
+        'type_article',
         'qualite',
         'modele',
         'nom_equipe',
         'badge',
         'quantite',
         'statut',
+        'montant_total',
+        'avance_versee',
         'date_commande',
         'date_livraison_prevue',
         'date_livraison_effective',
@@ -48,6 +67,8 @@ class Commande extends Model
         'date_livraison_prevue' => 'date',
         'date_livraison_effective' => 'datetime',
         'badge' => 'boolean',
+        'montant_total' => 'decimal:2',
+        'avance_versee' => 'decimal:2',
     ];
 
     // Jeton de partage généré automatiquement — jamais assignable en masse,
@@ -103,5 +124,38 @@ class Commande extends Model
             && $this->statut !== 'annulee'
             && $this->date_livraison_prevue->isFuture()
             && $this->date_livraison_prevue->diffInDays(Carbon::now(), absolute: true) <= 2;
+    }
+
+    // Reste-t-il exactement 7 jours avant la livraison ? Comparaison
+    // volontairement basée sur Carbon::today() (minuit) des deux côtés,
+    // jamais Carbon::now() : le cron tourne à 08:00, donc comparer contre
+    // now() introduit un décalage horaire qui rend diffInDays() fractionnaire
+    // (ex. 6.67 au lieu de 7 pile), et l'échéance à J-7 ne serait alors
+    // jamais détectée. diffInDays() renvoie un float même quand la valeur
+    // est un jour entier ("double(7)", pas "int(7)") — d'où le cast (int)
+    // avant le === pour éviter un faux négatif silencieux.
+    public function getRappelUneSemaineAttribute(): bool
+    {
+        return $this->statut !== 'livree'
+            && $this->statut !== 'annulee'
+            && (int) Carbon::today()->diffInDays($this->date_livraison_prevue, absolute: false) === 7;
+    }
+
+    // Montant restant dû. Accesseur calculé, jamais stocké, pour ne jamais
+    // pouvoir dériver vers une valeur incohérente avec montant_total/avance_versee.
+    public function getResteAPayerAttribute(): float
+    {
+        return (float) $this->montant_total - (float) $this->avance_versee;
+    }
+
+    // Statut de paiement dérivé automatiquement des montants — jamais saisi
+    // à la main, pour ne pas pouvoir se retrouver désynchronisé du calcul.
+    public function getStatutPaiementAttribute(): string
+    {
+        return match (true) {
+            (float) $this->avance_versee <= 0 => 'non_paye',
+            (float) $this->avance_versee >= (float) $this->montant_total => 'solde',
+            default => 'acompte_verse',
+        };
     }
 }

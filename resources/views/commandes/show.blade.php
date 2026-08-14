@@ -32,6 +32,10 @@
                         <dd class="mt-1 text-stade-950">{{ $commande->client->telephone }}</dd>
                     </div>
                     <div>
+                        <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Type d'article</dt>
+                        <dd class="mt-1 text-stade-950">{{ $commande->type_article }}</dd>
+                    </div>
+                    <div>
                         <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Qualité</dt>
                         <dd class="mt-1 text-stade-950">{{ $commande->qualite }}</dd>
                     </div>
@@ -62,6 +66,27 @@
                         </div>
                     @endif
                 </dl>
+
+                <div class="rounded-xl border border-stade-950/5 bg-stade-950/[0.02] px-5 py-4">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <h3 class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Paiement</h3>
+                        <x-statut-paiement-badge :statut="$commande->statut_paiement" />
+                    </div>
+                    <dl class="grid grid-cols-3 gap-4">
+                        <div>
+                            <dt class="text-xs text-stade-600/70">Montant total</dt>
+                            <dd class="mt-0.5 font-medium text-stade-950">{{ number_format((float) $commande->montant_total, 0, ',', ' ') }} FCFA</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-stade-600/70">Avance versée</dt>
+                            <dd class="mt-0.5 font-medium text-stade-950">{{ number_format((float) $commande->avance_versee, 0, ',', ' ') }} FCFA</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-stade-600/70">Reste à payer</dt>
+                            <dd class="mt-0.5 font-medium {{ $commande->reste_a_payer > 0 ? 'text-retard-600' : 'text-livree-600' }}">{{ number_format($commande->reste_a_payer, 0, ',', ' ') }} FCFA</dd>
+                        </div>
+                    </dl>
+                </div>
 
                 @if($commande->statut === 'livree')
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-livree-500/10 ring-1 ring-inset ring-livree-500/25 px-4 py-3">

@@ -149,6 +149,68 @@
                 @endif
             </section>
 
+            {{-- Paiements en attente --}}
+            <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm overflow-hidden">
+                <div class="px-6 py-5 border-b border-stade-950/5 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full {{ $paiementsEnAttente->isEmpty() ? 'bg-livree-500/10' : 'bg-or-500/10' }} flex items-center justify-center shrink-0">
+                            <svg class="w-6 h-6 {{ $paiementsEnAttente->isEmpty() ? 'text-livree-600' : 'text-or-600' }}" viewBox="0 0 20 20" fill="currentColor">
+                                @if($paiementsEnAttente->isEmpty())
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                @else
+                                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm5 4a3 3 0 106 0 3 3 0 00-6 0z" clip-rule="evenodd" />
+                                @endif
+                            </svg>
+                        </div>
+                        <h3 class="font-display text-lg tracking-tight text-stade-950">Paiements en attente</h3>
+                    </div>
+                    @if($paiementsEnAttente->isNotEmpty())
+                        <span class="shrink-0 text-xs font-semibold text-stade-600 bg-stade-950/5 rounded-full px-2.5 py-1">
+                            {{ $paiementsEnAttente->count() }} à relancer
+                        </span>
+                    @endif
+                </div>
+
+                @if($paiementsEnAttente->isEmpty())
+                    <div class="px-6 py-10 text-center">
+                        <div class="mx-auto w-12 h-12 rounded-full bg-livree-500/10 flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-livree-600" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="font-medium text-stade-950">Tous les paiements sont à jour</p>
+                        <p class="text-sm text-stade-600 mt-1">Aucune commande avec un reste à payer.</p>
+                    </div>
+                @else
+                    <ul class="divide-y divide-stade-950/5">
+                        @foreach($paiementsEnAttente as $commande)
+                            <li>
+                                <a href="{{ route('commandes.show', $commande) }}" class="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-stade-950/[0.02] transition">
+                                    <div class="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-baseline gap-2">
+                                                <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
+                                                <span class="text-xs text-stade-600/60 shrink-0">{{ $commande->reference }}</span>
+                                            </div>
+                                            <p class="text-sm text-stade-600 truncate">{{ number_format((float) $commande->montant_total, 0, ',', ' ') }} FCFA au total</p>
+                                        </div>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <x-statut-paiement-badge :statut="$commande->statut_paiement" />
+                                            <span class="text-xs font-semibold whitespace-nowrap text-retard-600">
+                                                Reste {{ number_format($commande->reste_a_payer, 0, ',', ' ') }} FCFA
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <svg class="w-4 h-4 text-stade-600/40 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </section>
+
             {{-- Résumé par statut --}}
             <section>
                 <h3 class="font-display text-lg tracking-tight text-stade-950 mb-4">Commandes par statut</h3>

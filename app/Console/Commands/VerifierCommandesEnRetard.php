@@ -23,6 +23,7 @@ class VerifierCommandesEnRetard extends Command
                 $commande->en_retard => 'retard',
                 $commande->echeance_aujourdhui => 'echeance',
                 $commande->approche => 'approche',
+                $commande->rappel_une_semaine => 'rappel_semaine',
                 default => null,
             };
 
