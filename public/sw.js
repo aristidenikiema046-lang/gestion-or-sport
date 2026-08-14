@@ -1,7 +1,7 @@
 // Service worker OR SPORT — installation PWA, cache basique des assets
 // statiques, et notifications push (voir section « Notifications » plus bas).
 
-const CACHE_NAME = 'or-sport-static-v1';
+const CACHE_NAME = 'or-sport-static-v2';
 const STATIC_EXTENSIONS = /\.(?:css|js|png|jpg|jpeg|svg|webp|woff2?|ttf)$/;
 const PRECACHE_ASSETS = [
     '/manifest.json',
@@ -25,16 +25,33 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Cache-first, uniquement pour les fichiers statiques (css/js/images/fonts).
-// Les pages HTML et les routes dynamiques (commandes, dashboard...) ne sont
-// jamais interceptées : elles contiennent des données propres à chaque
-// utilisateur connecté et ne doivent pas être mises en cache par le SW.
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     if (request.method !== 'GET') return;
 
     const url = new URL(request.url);
     if (url.origin !== self.location.origin) return;
+
+    // Requêtes de navigation (chargement de page, y compris le lancement de
+    // l'app installée en PWA depuis l'écran d'accueil) : toujours réseau
+    // d'abord, avec un respondWith() explicite. Sans ça, certains
+    // navigateurs mobiles peuvent laisser la navigation initiale sans
+    // réponse claire pendant le lancement en mode standalone, ce qui bloque
+    // l'écran de démarrage indéfiniment. La promesse ici se résout ou
+    // échoue toujours — jamais d'attente infinie — et le fetch() est
+    // explicitement géré par un .catch() pour éviter toute Promise en
+    // suspens si le réseau échoue au démarrage à froid.
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request).catch(() => caches.match(request))
+        );
+        return;
+    }
+
+    // Cache-first, uniquement pour les fichiers statiques (css/js/images/fonts).
+    // Les routes dynamiques (commandes, dashboard...) ne sont jamais mises en
+    // cache : elles contiennent des données propres à chaque utilisateur
+    // connecté.
     if (!STATIC_EXTENSIONS.test(url.pathname)) return;
 
     event.respondWith(

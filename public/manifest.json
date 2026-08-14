@@ -2,7 +2,7 @@
     "name": "OR SPORT — Espace de gestion",
     "short_name": "OR SPORT",
     "description": "Gestion des commandes et livraisons — OR SPORT, Abidjan",
-    "start_url": "/",
+    "start_url": "/dashboard",
     "scope": "/",
     "display": "standalone",
     "orientation": "portrait-primary",
