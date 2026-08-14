@@ -72,21 +72,28 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Notifications push (VAPID / laravel-notification-channels/webpush).
+//
+// showNotification() doit être appelé pour CHAQUE événement 'push', même
+// sans payload : si le SW ne montre rien, le navigateur affiche lui-même
+// une notification générique de secours, avec le nom de domaine du site en
+// guise de titre au lieu de "OR SPORT". D'où le payload de repli ci-dessous
+// plutôt qu'un simple `return` anticipé.
 self.addEventListener('push', (event) => {
-    if (!event.data) return;
+    let payload = { title: 'OR SPORT', body: '' };
 
-    let payload;
-    try {
-        payload = event.data.json();
-    } catch (erreur) {
-        payload = { title: 'OR SPORT', body: event.data.text() };
+    if (event.data) {
+        try {
+            payload = event.data.json();
+        } catch (erreur) {
+            payload = { title: 'OR SPORT', body: event.data.text() };
+        }
     }
 
     const url = payload.data?.url || payload.url || '/dashboard';
 
     event.waitUntil(
         self.registration.showNotification(payload.title || 'OR SPORT', {
-            body: payload.body || payload.options?.body,
+            body: payload.body || payload.options?.body || '',
             icon: payload.icon || '/icons/icon-192x192.png',
             badge: '/icons/icon-192x192.png',
             data: { url },
