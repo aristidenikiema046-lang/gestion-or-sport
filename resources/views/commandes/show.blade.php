@@ -81,17 +81,65 @@
                         </a>
                     </div>
                 @else
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <form method="POST" action="{{ route('commandes.livrer', $commande) }}"
-                            onsubmit="return confirm('Marquer la commande {{ $commande->reference }} comme livrée ?');" class="sm:flex-1">
+                    <div class="flex flex-col sm:flex-row gap-3" x-data="{ confirmationLivraison: false }">
+                        <form method="POST" action="{{ route('commandes.livrer', $commande) }}" class="sm:flex-1">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-livree-500 px-6 py-3 text-sm font-semibold text-white hover:bg-livree-600 focus:outline-none focus:ring-2 focus:ring-livree-500/50 focus:ring-offset-2 transition">
+                            <button type="button" x-on:click="confirmationLivraison = true" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-livree-500 px-6 py-3 text-sm font-semibold text-white hover:bg-livree-600 focus:outline-none focus:ring-2 focus:ring-livree-500/50 focus:ring-offset-2 transition">
                                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
                                 </svg>
                                 Marquer comme livré
                             </button>
+
+                            {{-- Modale de confirmation (remplace window.confirm(), qui affiche le nom de domaine technique) --}}
+                            <div
+                                x-show="confirmationLivraison"
+                                x-on:keydown.escape.window="confirmationLivraison = false"
+                                class="fixed inset-0 z-50 flex items-center justify-center px-4"
+                                style="display: none;"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="confirmation-livraison-titre"
+                            >
+                                <div
+                                    x-show="confirmationLivraison"
+                                    x-on:click="confirmationLivraison = false"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0"
+                                    x-transition:enter-end="opacity-100"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100"
+                                    x-transition:leave-end="opacity-0"
+                                    class="absolute inset-0 bg-stade-950/60 backdrop-blur-sm"
+                                ></div>
+
+                                <div
+                                    x-show="confirmationLivraison"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                                    class="relative w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl p-6"
+                                >
+                                    <h3 id="confirmation-livraison-titre" class="font-display text-lg tracking-tight text-stade-950">
+                                        Confirmer la livraison
+                                    </h3>
+                                    <p class="mt-2 text-sm text-stade-600">
+                                        Marquer la commande {{ $commande->reference }} comme livrée ?
+                                    </p>
+                                    <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                                        <button type="button" x-on:click="confirmationLivraison = false" class="inline-flex items-center justify-center rounded-lg border border-stade-700/20 bg-white px-5 py-2.5 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
+                                            Annuler
+                                        </button>
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-livree-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-livree-600 focus:outline-none focus:ring-2 focus:ring-livree-500/50 focus:ring-offset-2 transition">
+                                            Confirmer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                         <a href="{{ route('commandes.edit', $commande) }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-stade-700/20 bg-white px-6 py-3 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
                             Modifier

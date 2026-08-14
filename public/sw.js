@@ -94,7 +94,7 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
         self.registration.showNotification(payload.title || 'OR SPORT', {
             body: payload.body || payload.options?.body || '',
-            icon: payload.icon || '/icons/icon-192x192.png',
+            icon: payload.icon || '/icons/icon-512x512.png',
             badge: '/icons/icon-192x192.png',
             data: { url },
         })

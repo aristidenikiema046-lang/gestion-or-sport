@@ -44,7 +44,7 @@ class CommandeAlerte extends Notification
     {
         return (new WebPushMessage())
             ->title($this->titre())
-            ->icon('/icons/icon-192x192.png')
+            ->icon('/icons/icon-512x512.png')
             ->body($this->message())
             ->data(['url' => '/dashboard'])
             ->options(['TTL' => 3600]);
