@@ -63,7 +63,7 @@
         <div class="bon max-w-2xl mx-auto bg-white rounded-2xl border border-stade-950/10 shadow-sm p-6 sm:p-10 print:p-10">
             <div class="flex flex-wrap items-start justify-between gap-4 pb-6 border-b-2 border-stade-950">
                 <div class="flex items-center gap-2.5">
-                    <x-brand-mark class="h-10 w-10 text-or-500 shrink-0" />
+                    <x-brand-mark class="h-11 w-11 text-or-500 shrink-0" />
                     <x-application-logo class="text-2xl text-stade-950" />
                 </div>
                 <div class="text-right">
