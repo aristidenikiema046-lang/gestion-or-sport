@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 class="font-display text-2xl text-stade-950 tracking-tight">
                 Commandes
             </h2>
-            <a href="{{ route('commandes.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-or-500 px-4 py-2 text-sm font-semibold text-stade-950 hover:bg-or-400 focus:outline-none focus:ring-2 focus:ring-or-500/50 focus:ring-offset-2 transition">
+            <a href="{{ route('commandes.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-or-500 px-4 py-2.5 text-sm font-semibold text-stade-950 hover:bg-or-400 focus:outline-none focus:ring-2 focus:ring-or-500/50 focus:ring-offset-2 transition">
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
                 </svg>
@@ -88,14 +88,53 @@
                         @endif
                     </div>
                 @else
-                    <div class="overflow-x-auto">
+                    {{-- Cartes empilées : lisibles sur mobile, sans scroll horizontal --}}
+                    <ul class="divide-y divide-stade-950/5 sm:hidden">
+                        @foreach($commandes as $commande)
+                            <li>
+                                <a href="{{ route('commandes.show', $commande) }}" class="block px-4 py-4 active:bg-stade-950/[0.03] transition">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
+                                            <p class="text-xs text-stade-600/60 mt-0.5">{{ $commande->reference }}</p>
+                                        </div>
+                                        <x-statut-badge :statut="$commande->statut" class="shrink-0" />
+                                    </div>
+
+                                    <p class="mt-2.5 text-sm text-stade-700">
+                                        Qualité {{ $commande->qualite }}
+                                        <span class="text-stade-600/60">&middot; {{ $commande->modele }} &middot; Qté {{ $commande->quantite }}</span>
+                                    </p>
+
+                                    <div class="mt-2.5 flex items-center justify-between gap-3">
+                                        <div class="flex items-center gap-1.5 text-sm">
+                                            @if($commande->en_retard)
+                                                <span class="w-1.5 h-1.5 rounded-full bg-retard-500 shrink-0"></span>
+                                            @elseif($commande->approche)
+                                                <span class="w-1.5 h-1.5 rounded-full bg-approche-500 shrink-0"></span>
+                                            @endif
+                                            <span class="{{ $commande->en_retard ? 'text-retard-600 font-medium' : ($commande->approche ? 'text-approche-600 font-medium' : 'text-stade-600') }}">
+                                                {{ $commande->date_livraison_prevue->format('d/m/Y') }}
+                                            </span>
+                                        </div>
+                                        <span class="shrink-0 text-xs font-semibold text-or-600">
+                                            Détails &rarr;
+                                        </span>
+                                    </div>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    {{-- Tableau classique : à partir de la tablette --}}
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="text-left text-xs font-semibold text-stade-600/70 uppercase tracking-wide">
                                     <th class="px-6 py-3">Référence</th>
                                     <th class="px-6 py-3">Client</th>
+                                    <th class="px-6 py-3">Qualité</th>
                                     <th class="px-6 py-3">Modèle</th>
-                                    <th class="px-6 py-3">Taille</th>
                                     <th class="px-6 py-3">Qté</th>
                                     <th class="px-6 py-3">Statut</th>
                                     <th class="px-6 py-3">Livraison prévue</th>
@@ -107,8 +146,8 @@
                                     <tr class="hover:bg-stade-950/[0.02] transition">
                                         <td class="px-6 py-4 font-medium text-stade-950 whitespace-nowrap">{{ $commande->reference }}</td>
                                         <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->client->nom_complet }}</td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->modele_maillot }}</td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->taille }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->qualite }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->modele }}</td>
                                         <td class="px-6 py-4 text-stade-700">{{ $commande->quantite }}</td>
                                         <td class="px-6 py-4"><x-statut-badge :statut="$commande->statut" /></td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -134,7 +173,7 @@
                         </table>
                     </div>
 
-                    <div class="px-6 py-4 border-t border-stade-950/5">
+                    <div class="px-4 sm:px-6 py-4 border-t border-stade-950/5">
                         {{ $commandes->links() }}
                     </div>
                 @endif

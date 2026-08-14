@@ -4,8 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="theme-color" content="#0a0c0e">
 
         <title>{{ config('app.name', 'OR SPORT') }} — Espace de gestion</title>
+
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('icons/favicon-16x16.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
 
         @fonts
 
@@ -25,9 +31,8 @@
 
             <div class="relative w-full sm:max-w-md">
                 <div class="mb-8 text-center">
-                    <a href="{{ route('home') }}" class="inline-flex flex-col items-center gap-3">
-                        <x-brand-mark class="h-14 w-14 text-or-500" />
-                        <x-application-logo class="text-4xl text-ivoire-100" />
+                    <a href="{{ route('home') }}" class="inline-flex items-center justify-center">
+                        <img src="{{ asset('images/logo-full-800.png') }}" alt="OR SPORT" class="h-28 w-auto sm:h-32" />
                     </a>
                     <p class="mt-2 text-xs uppercase tracking-[0.2em] text-or-500/80">Espace de gestion</p>
                 </div>

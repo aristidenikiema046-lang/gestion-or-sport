@@ -14,7 +14,6 @@ class Client extends Model
         'nom',
         'prenom',
         'telephone',
-        'adresse',
     ];
 
     public function commandes(): HasMany

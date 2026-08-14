@@ -31,9 +31,7 @@
     --color-approche-500: #e08a2e;
     --color-approche-600: #bd6f1f;
 
-    /* Statut vocabulary — "prête" and "livrée" */
-    --color-pret-500: #1f8a94;
-    --color-pret-600: #146b74;
+    /* Statut vocabulary — "livrée" */
     --color-livree-500: #3f9142;
     --color-livree-600: #2e7d32;
 }

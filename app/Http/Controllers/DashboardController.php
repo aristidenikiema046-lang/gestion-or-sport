@@ -14,7 +14,7 @@ class DashboardController extends Controller
             ->with('client')
             ->orderBy('date_livraison_prevue')
             ->get()
-            ->filter(fn (Commande $commande) => $commande->en_retard || $commande->approche)
+            ->filter(fn (Commande $commande) => $commande->en_retard || $commande->echeance_aujourdhui || $commande->approche)
             ->values();
 
         $repartition = Commande::selectRaw('statut, count(*) as total')
@@ -31,6 +31,7 @@ class DashboardController extends Controller
             'alertes' => $alertes,
             'parStatut' => $parStatut,
             'recentes' => $recentes,
+            'vapidPublicKey' => config('webpush.vapid.public_key'),
         ]);
     }
 }

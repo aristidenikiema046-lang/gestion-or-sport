@@ -8,8 +8,7 @@
     @php
         $cardStyles = [
             'en_attente' => ['ring' => 'ring-stade-950/10', 'accent' => 'bg-stade-600', 'text' => 'text-stade-950'],
-            'en_preparation' => ['ring' => 'ring-or-500/25', 'accent' => 'bg-or-500', 'text' => 'text-or-700'],
-            'prete' => ['ring' => 'ring-pret-500/25', 'accent' => 'bg-pret-500', 'text' => 'text-pret-600'],
+            'en_confection' => ['ring' => 'ring-or-500/25', 'accent' => 'bg-or-500', 'text' => 'text-or-700'],
             'livree' => ['ring' => 'ring-livree-500/25', 'accent' => 'bg-livree-500', 'text' => 'text-livree-600'],
             'annulee' => ['ring' => 'ring-stade-950/10', 'accent' => 'bg-stade-600/40', 'text' => 'text-stade-600'],
         ];
@@ -17,6 +16,62 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+            {{-- Notifications push --}}
+            @if($vapidPublicKey)
+                <section
+                    x-data="{
+                        etat: 'verification', // verification, non-supporte, inactif, actif, refuse, erreur
+                        vapidPublicKey: @js($vapidPublicKey),
+                        async init() {
+                            if (!window.OrSportPush || !window.OrSportPush.supporte()) {
+                                this.etat = 'non-supporte';
+                                return;
+                            }
+                            if (Notification.permission === 'denied') {
+                                this.etat = 'refuse';
+                                return;
+                            }
+                            this.etat = (await window.OrSportPush.estAbonne()) ? 'actif' : 'inactif';
+                        },
+                        async activer() {
+                            this.etat = 'verification';
+                            try {
+                                await window.OrSportPush.activer(this.vapidPublicKey);
+                                this.etat = 'actif';
+                            } catch (erreur) {
+                                this.etat = erreur.message === 'denied' ? 'refuse' : 'erreur';
+                            }
+                        },
+                    }"
+                    class="bg-white rounded-2xl border border-stade-950/5 shadow-sm px-6 py-5 flex items-center justify-between gap-4 flex-wrap"
+                >
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-or-500/10 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-or-600" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM8.5 16a1.5 1.5 0 003 0h-3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-stade-950">Notifications push</p>
+                            <p class="text-sm text-stade-600" x-show="etat === 'verification'">Vérification en cours&hellip;</p>
+                            <p class="text-sm text-stade-600" x-show="etat === 'inactif'">Reçois une alerte sur ton téléphone dès qu'une livraison approche ou arrive à échéance.</p>
+                            <p class="text-sm text-livree-600 font-medium" x-show="etat === 'actif'">Activées sur cet appareil.</p>
+                            <p class="text-sm text-retard-600" x-show="etat === 'refuse'">Notifications bloquées par le navigateur. Autorise-les dans les réglages du site pour les activer.</p>
+                            <p class="text-sm text-retard-600" x-show="etat === 'erreur'">Une erreur est survenue, réessaie.</p>
+                            <p class="text-sm text-stade-600" x-show="etat === 'non-supporte'">Non prises en charge par ce navigateur.</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        x-show="etat === 'inactif' || etat === 'erreur'"
+                        x-on:click="activer"
+                        class="shrink-0 inline-flex items-center gap-2 rounded-xl bg-stade-950 text-white text-sm font-semibold px-4 py-2.5 hover:bg-stade-900 transition"
+                    >
+                        Activer les notifications
+                    </button>
+                </section>
+            @endif
 
             {{-- Alertes --}}
             <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm overflow-hidden">
@@ -53,25 +108,29 @@
                         @foreach($alertes as $commande)
                             @php
                                 $enRetard = $commande->en_retard;
+                                $echeanceAujourdhui = $commande->echeance_aujourdhui;
                                 $delta = (int) now()->startOfDay()->diffInDays($commande->date_livraison_prevue, false);
-                                $texte = $enRetard
-                                    ? ($delta === 0
-                                        ? 'Devait être livrée aujourd\'hui'
-                                        : 'En retard de '.abs($delta).' jour'.(abs($delta) > 1 ? 's' : ''))
-                                    : ($delta === 1 ? 'Livraison prévue demain' : 'Dans '.$delta.' jours');
+                                $texte = match(true) {
+                                    $enRetard => 'En retard de '.abs($delta).' jour'.(abs($delta) > 1 ? 's' : ''),
+                                    $echeanceAujourdhui => "Livraison prévue aujourd'hui",
+                                    $delta === 1 => 'Livraison prévue demain',
+                                    default => 'Dans '.$delta.' jours',
+                                };
+                                $couleurPastille = $enRetard ? 'bg-retard-500' : 'bg-approche-500';
+                                $couleurTexte = $enRetard ? 'text-retard-600' : 'text-approche-600';
                             @endphp
                             <li>
-                                <a href="{{ route('commandes.show', $commande) }}" class="flex items-center gap-4 px-6 py-4 hover:bg-stade-950/[0.02] transition">
-                                    <span class="w-1.5 self-stretch rounded-full {{ $enRetard ? 'bg-retard-500' : 'bg-approche-500' }}"></span>
+                                <a href="{{ route('commandes.show', $commande) }}" class="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-stade-950/[0.02] transition">
+                                    <span class="w-1.5 self-stretch rounded-full {{ $couleurPastille }}"></span>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-baseline gap-2">
                                             <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
                                             <span class="text-xs text-stade-600/60 shrink-0">{{ $commande->reference }}</span>
                                         </div>
-                                        <p class="text-sm text-stade-600 truncate">{{ $commande->modele_maillot }}</p>
+                                        <p class="text-sm text-stade-600 truncate">Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }}</p>
                                     </div>
                                     <x-statut-badge :statut="$commande->statut" class="hidden sm:inline-flex shrink-0" />
-                                    <span class="shrink-0 text-xs font-semibold whitespace-nowrap {{ $enRetard ? 'text-retard-600' : 'text-approche-600' }}">
+                                    <span class="shrink-0 text-xs font-semibold whitespace-nowrap {{ $couleurTexte }}">
                                         {{ $texte }}
                                     </span>
                                     <svg class="w-4 h-4 text-stade-600/40 shrink-0" viewBox="0 0 20 20" fill="currentColor">
@@ -87,7 +146,7 @@
             {{-- Résumé par statut --}}
             <section>
                 <h3 class="font-display text-lg tracking-tight text-stade-950 mb-4">Commandes par statut</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     @foreach($parStatut as $statut => $total)
                         @php $style = $cardStyles[$statut]; @endphp
                         <a href="{{ route('commandes.index', ['statut' => $statut]) }}"
@@ -116,11 +175,34 @@
                         Aucune commande enregistrée pour le moment.
                     </div>
                 @else
-                    <div class="overflow-x-auto">
+                    {{-- Cartes empilées : lisibles sur mobile, sans scroll horizontal --}}
+                    <ul class="divide-y divide-stade-950/5 sm:hidden">
+                        @foreach($recentes as $commande)
+                            <li>
+                                <a href="{{ route('commandes.show', $commande) }}" class="block px-4 py-4 active:bg-stade-950/[0.03] transition">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
+                                            <p class="text-xs text-stade-600/60 mt-0.5">{{ $commande->reference }}</p>
+                                        </div>
+                                        <x-statut-badge :statut="$commande->statut" class="shrink-0" />
+                                    </div>
+                                    <div class="mt-2.5 flex items-center justify-between gap-3">
+                                        <p class="text-sm text-stade-700 truncate">Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }}</p>
+                                        <span class="shrink-0 text-xs text-stade-600">{{ $commande->date_livraison_prevue->format('d/m/Y') }}</span>
+                                    </div>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    {{-- Tableau classique : à partir de la tablette --}}
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="text-left text-xs font-semibold text-stade-600/70 uppercase tracking-wide">
                                     <th class="px-6 py-3">Client</th>
+                                    <th class="px-6 py-3">Qualité</th>
                                     <th class="px-6 py-3">Modèle</th>
                                     <th class="px-6 py-3">Statut</th>
                                     <th class="px-6 py-3">Livraison prévue</th>
@@ -134,7 +216,8 @@
                                             <div class="font-medium text-stade-950">{{ $commande->client->nom_complet }}</div>
                                             <div class="text-xs text-stade-600/60">{{ $commande->reference }}</div>
                                         </td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->modele_maillot }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->qualite }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->modele }}</td>
                                         <td class="px-6 py-4"><x-statut-badge :statut="$commande->statut" /></td>
                                         <td class="px-6 py-4 text-stade-700">{{ $commande->date_livraison_prevue->format('d/m/Y') }}</td>
                                         <td class="px-6 py-4 text-right">

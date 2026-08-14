@@ -71,7 +71,6 @@ class CommandeController extends Controller
                     'nom' => $donnees['client_nom'],
                     'prenom' => $donnees['client_prenom'],
                     'telephone' => $donnees['client_telephone'],
-                    'adresse' => $donnees['client_adresse'],
                 ]);
             } else {
                 $client = Client::findOrFail($donnees['client_id']);
@@ -80,10 +79,9 @@ class CommandeController extends Controller
             return Commande::create([
                 'reference' => Commande::prochaineReference(),
                 'client_id' => $client->id,
-                'modele_maillot' => $donnees['modele_maillot'],
-                'taille' => $donnees['taille'],
-                'personnalisation_nom' => $donnees['personnalisation_nom'] ?? null,
-                'personnalisation_numero' => $donnees['personnalisation_numero'] ?? null,
+                'qualite' => $donnees['qualite'],
+                'modele' => $donnees['modele'],
+                'nom_equipe' => $donnees['nom_equipe'] ?? null,
                 'badge' => $request->boolean('badge'),
                 'quantite' => $donnees['quantite'],
                 'statut' => $donnees['statut'],
@@ -117,7 +115,6 @@ class CommandeController extends Controller
                     'nom' => $donnees['client_nom'],
                     'prenom' => $donnees['client_prenom'],
                     'telephone' => $donnees['client_telephone'],
-                    'adresse' => $donnees['client_adresse'],
                 ]);
             } else {
                 $client = Client::findOrFail($donnees['client_id']);
@@ -132,10 +129,9 @@ class CommandeController extends Controller
 
             $commande->update([
                 'client_id' => $client->id,
-                'modele_maillot' => $donnees['modele_maillot'],
-                'taille' => $donnees['taille'],
-                'personnalisation_nom' => $donnees['personnalisation_nom'] ?? null,
-                'personnalisation_numero' => $donnees['personnalisation_numero'] ?? null,
+                'qualite' => $donnees['qualite'],
+                'modele' => $donnees['modele'],
+                'nom_equipe' => $donnees['nom_equipe'] ?? null,
                 'badge' => $request->boolean('badge'),
                 'quantite' => $donnees['quantite'],
                 'statut' => $donnees['statut'],
@@ -153,7 +149,7 @@ class CommandeController extends Controller
     public function livrees(Request $request): View
     {
         $client = $request->string('client')->trim()->value() ?: null;
-        $modele = $request->string('modele')->trim()->value() ?: null;
+        $qualite = $request->string('qualite')->value() ?: null;
         $dateDebut = $request->string('date_debut')->value() ?: null;
         $dateFin = $request->string('date_fin')->value() ?: null;
 
@@ -168,7 +164,7 @@ class CommandeController extends Controller
                         ->orWhereRaw("CONCAT(nom, ' ', prenom) LIKE ?", ["%{$client}%"]);
                 });
             })
-            ->when($modele, fn ($query) => $query->where('modele_maillot', 'like', "%{$modele}%"))
+            ->when($qualite, fn ($query) => $query->where('qualite', $qualite))
             ->when($dateDebut, fn ($query) => $query->whereDate('date_livraison_effective', '>=', $dateDebut))
             ->when($dateFin, fn ($query) => $query->whereDate('date_livraison_effective', '<=', $dateFin))
             ->orderByDesc('date_livraison_effective')
@@ -178,7 +174,7 @@ class CommandeController extends Controller
         return view('commandes.livrees', [
             'commandes' => $commandes,
             'client' => $client,
-            'modele' => $modele,
+            'qualite' => $qualite,
             'dateDebut' => $dateDebut,
             'dateFin' => $dateFin,
         ]);

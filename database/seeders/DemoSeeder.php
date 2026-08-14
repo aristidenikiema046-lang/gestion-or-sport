@@ -27,20 +27,18 @@ class DemoSeeder extends Seeder
             'nom' => 'Kouassi',
             'prenom' => 'Jean',
             'telephone' => '+225 0700000000',
-            'adresse' => 'Marcory Anoumabo, Abidjan',
         ]);
 
         // Une commande EN RETARD (date passée, pas livrée)
         Commande::create([
             'reference' => 'CMD-0001',
             'client_id' => $client->id,
-            'modele_maillot' => 'Maillot VIP F1',
-            'taille' => 'M',
-            'personnalisation_nom' => 'KOUASSI',
-            'personnalisation_numero' => '10',
+            'qualite' => 'F1',
+            'modele' => 'Couture',
+            'nom_equipe' => 'KOUASSI',
             'badge' => true,
             'quantite' => 2,
-            'statut' => 'en_preparation',
+            'statut' => 'en_confection',
             'date_commande' => now()->subDays(10),
             'date_livraison_prevue' => now()->subDays(2), // en retard
         ]);
@@ -49,10 +47,10 @@ class DemoSeeder extends Seeder
         Commande::create([
             'reference' => 'CMD-0002',
             'client_id' => $client->id,
-            'modele_maillot' => 'Survêtement',
-            'taille' => 'L',
+            'qualite' => 'F2',
+            'modele' => 'Sublimation',
             'quantite' => 1,
-            'statut' => 'prete',
+            'statut' => 'en_confection',
             'date_commande' => now()->subDays(3),
             'date_livraison_prevue' => now()->addDay(), // approche
         ]);
@@ -61,8 +59,8 @@ class DemoSeeder extends Seeder
         Commande::create([
             'reference' => 'CMD-0003',
             'client_id' => $client->id,
-            'modele_maillot' => 'Sublimation',
-            'taille' => 'S',
+            'qualite' => 'F1',
+            'modele' => 'Sublimation',
             'quantite' => 3,
             'statut' => 'livree',
             'date_commande' => now()->subDays(15),

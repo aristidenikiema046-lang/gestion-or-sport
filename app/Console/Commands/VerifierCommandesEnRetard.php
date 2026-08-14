@@ -19,14 +19,19 @@ class VerifierCommandesEnRetard extends Command
         $commandes = Commande::whereNotIn('statut', ['livree', 'annulee'])->get();
 
         foreach ($commandes as $commande) {
-            if ($commande->en_retard) {
-                foreach ($admins as $admin) {
-                    $admin->notify(new CommandeAlerte($commande, 'retard'));
-                }
-            } elseif ($commande->approche) {
-                foreach ($admins as $admin) {
-                    $admin->notify(new CommandeAlerte($commande, 'approche'));
-                }
+            $type = match (true) {
+                $commande->en_retard => 'retard',
+                $commande->echeance_aujourdhui => 'echeance',
+                $commande->approche => 'approche',
+                default => null,
+            };
+
+            if ($type === null) {
+                continue;
+            }
+
+            foreach ($admins as $admin) {
+                $admin->notify(new CommandeAlerte($commande, $type));
             }
         }
 

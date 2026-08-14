@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="font-display text-2xl text-stade-950 tracking-tight">
                 Commande {{ $commande->reference }}
             </h2>
@@ -32,22 +32,16 @@
                         <dd class="mt-1 text-stade-950">{{ $commande->client->telephone }}</dd>
                     </div>
                     <div>
+                        <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Qualité</dt>
+                        <dd class="mt-1 text-stade-950">{{ $commande->qualite }}</dd>
+                    </div>
+                    <div>
                         <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Modèle</dt>
-                        <dd class="mt-1 text-stade-950">{{ $commande->modele_maillot }}</dd>
+                        <dd class="mt-1 text-stade-950">{{ $commande->modele }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Taille</dt>
-                        <dd class="mt-1 text-stade-950">{{ $commande->taille }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Personnalisation</dt>
-                        <dd class="mt-1 text-stade-950">
-                            @if($commande->personnalisation_nom || $commande->personnalisation_numero)
-                                {{ $commande->personnalisation_nom }} {{ $commande->personnalisation_numero }}
-                            @else
-                                &mdash;
-                            @endif
-                        </dd>
+                        <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Nom de l'équipe</dt>
+                        <dd class="mt-1 text-stade-950">{{ $commande->nom_equipe ?? '—' }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-semibold text-stade-600/70 uppercase tracking-wide">Quantité</dt>
@@ -70,14 +64,14 @@
                 </dl>
 
                 @if($commande->statut === 'livree')
-                    <div class="flex items-center gap-3 rounded-xl bg-livree-500/10 ring-1 ring-inset ring-livree-500/25 px-4 py-3">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-livree-500/10 ring-1 ring-inset ring-livree-500/25 px-4 py-3">
                         <svg class="w-5 h-5 shrink-0 text-livree-600" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
                         </svg>
                         <p class="text-sm font-medium text-livree-600">
                             Livrée le {{ $commande->date_livraison_effective->format('d/m/Y à H:i') }}
                         </p>
-                        <a href="{{ route('commandes.bon-livraison', $commande) }}" target="_blank" class="ml-auto text-sm font-semibold text-or-600 hover:text-or-700 whitespace-nowrap">
+                        <a href="{{ route('commandes.bon-livraison', $commande) }}" target="_blank" class="sm:ml-auto text-sm font-semibold text-or-600 hover:text-or-700 whitespace-nowrap">
                             Bon de livraison
                         </a>
                     </div>

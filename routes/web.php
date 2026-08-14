@@ -3,6 +3,7 @@
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::patch('/commandes/{commande}', [CommandeController::class, 'update'])->name('commandes.update');
     Route::patch('/commandes/{commande}/livrer', [CommandeController::class, 'marquerLivree'])->name('commandes.livrer');
     Route::get('/commandes/{commande}/bon-livraison', [CommandeController::class, 'bonLivraison'])->name('commandes.bon-livraison');
+    Route::post('/notifications/push-subscribe', [PushSubscriptionController::class, 'store'])->name('notifications.push-subscribe');
 });
 
 Route::middleware('auth')->group(function () {
@@ -31,5 +33,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Lien de partage public du bon de livraison — volontairement hors
+// authentification, mais résolu par jeton opaque (jamais par id) pour
+// qu'une commande ne puisse être consultée qu'avec son propre lien.
+Route::get('/bon-livraison/{commande:partage_token}', [CommandeController::class, 'bonLivraison'])
+    ->name('commandes.bon-livraison.public');
 
 require __DIR__.'/auth.php';
