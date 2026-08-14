@@ -47,8 +47,8 @@
                     class="bg-white rounded-2xl border border-stade-950/5 shadow-sm px-6 py-5 flex items-center justify-between gap-4 flex-wrap"
                 >
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-or-500/10 flex items-center justify-center shrink-0">
-                            <svg class="w-5 h-5 text-or-600" viewBox="0 0 20 20" fill="currentColor">
+                        <div class="w-12 h-12 rounded-full bg-or-500/10 flex items-center justify-center shrink-0">
+                            <svg class="w-6 h-6 text-or-600" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM8.5 16a1.5 1.5 0 003 0h-3z" />
                             </svg>
                         </div>
@@ -76,14 +76,16 @@
             {{-- Alertes --}}
             <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm overflow-hidden">
                 <div class="px-6 py-5 border-b border-stade-950/5 flex items-center justify-between gap-4">
-                    <div class="flex items-center gap-2.5">
-                        <svg class="w-5 h-5 {{ $alertes->isEmpty() ? 'text-livree-600' : 'text-retard-500' }}" viewBox="0 0 20 20" fill="currentColor">
-                            @if($alertes->isEmpty())
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                            @else
-                                <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
-                            @endif
-                        </svg>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full {{ $alertes->isEmpty() ? 'bg-livree-500/10' : 'bg-retard-500/10' }} flex items-center justify-center shrink-0">
+                            <svg class="w-6 h-6 {{ $alertes->isEmpty() ? 'text-livree-600' : 'text-retard-500' }}" viewBox="0 0 20 20" fill="currentColor">
+                                @if($alertes->isEmpty())
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                @else
+                                    <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                                @endif
+                            </svg>
+                        </div>
                         <h3 class="font-display text-lg tracking-tight text-stade-950">Alertes livraison</h3>
                     </div>
                     @if($alertes->isNotEmpty())
@@ -122,17 +124,21 @@
                             <li>
                                 <a href="{{ route('commandes.show', $commande) }}" class="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-stade-950/[0.02] transition">
                                     <span class="w-1.5 self-stretch rounded-full {{ $couleurPastille }}"></span>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex items-baseline gap-2">
-                                            <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
-                                            <span class="text-xs text-stade-600/60 shrink-0">{{ $commande->reference }}</span>
+                                    <div class="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-baseline gap-2">
+                                                <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
+                                                <span class="text-xs text-stade-600/60 shrink-0">{{ $commande->reference }}</span>
+                                            </div>
+                                            <p class="text-sm text-stade-600 truncate">Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }}</p>
                                         </div>
-                                        <p class="text-sm text-stade-600 truncate">Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }}</p>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <x-statut-badge :statut="$commande->statut" class="shrink-0" />
+                                            <span class="text-xs font-semibold whitespace-nowrap {{ $couleurTexte }}">
+                                                {{ $texte }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <x-statut-badge :statut="$commande->statut" class="hidden sm:inline-flex shrink-0" />
-                                    <span class="shrink-0 text-xs font-semibold whitespace-nowrap {{ $couleurTexte }}">
-                                        {{ $texte }}
-                                    </span>
                                     <svg class="w-4 h-4 text-stade-600/40 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
                                     </svg>
