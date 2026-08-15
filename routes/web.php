@@ -25,6 +25,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::patch('/commandes/{commande}', [CommandeController::class, 'update'])->name('commandes.update');
     Route::patch('/commandes/{commande}/livrer', [CommandeController::class, 'marquerLivree'])->name('commandes.livrer');
     Route::get('/commandes/{commande}/bon-livraison', [CommandeController::class, 'bonLivraison'])->name('commandes.bon-livraison');
+    Route::get('/commandes/{commande}/bon-livraison/pdf', [CommandeController::class, 'bonLivraisonPdf'])->name('commandes.bon-livraison.pdf');
     Route::post('/notifications/push-subscribe', [PushSubscriptionController::class, 'store'])->name('notifications.push-subscribe');
 });
 
@@ -39,5 +40,7 @@ Route::middleware('auth')->group(function () {
 // qu'une commande ne puisse être consultée qu'avec son propre lien.
 Route::get('/bon-livraison/{commande:partage_token}', [CommandeController::class, 'bonLivraison'])
     ->name('commandes.bon-livraison.public');
+Route::get('/bon-livraison/{commande:partage_token}/pdf', [CommandeController::class, 'bonLivraisonPdf'])
+    ->name('commandes.bon-livraison.pdf.public');
 
 require __DIR__.'/auth.php';

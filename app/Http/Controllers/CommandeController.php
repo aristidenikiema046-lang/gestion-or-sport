@@ -6,8 +6,10 @@ use App\Http\Requests\StoreCommandeRequest;
 use App\Http\Requests\UpdateCommandeRequest;
 use App\Models\Client;
 use App\Models\Commande;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -213,5 +215,19 @@ class CommandeController extends Controller
         return view('commandes.bon-livraison', [
             'commande' => $commande,
         ]);
+    }
+
+    public function bonLivraisonPdf(Commande $commande): Response
+    {
+        $commande->load('client');
+
+        $pdf = Pdf::loadView('commandes.bon-livraison-pdf', [
+            'commande' => $commande,
+            'logoBase64' => 'data:image/png;base64,'.base64_encode(
+                file_get_contents(public_path('icons/logo-icon-tight-crop.png'))
+            ),
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download("bon-livraison-{$commande->reference}.pdf");
     }
 }

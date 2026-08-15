@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "ext-bcmath": "*",
+        "barryvdh/laravel-dompdf": "^3.1",
         "laravel-notification-channels/webpush": "*",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0"

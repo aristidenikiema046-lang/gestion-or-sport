@@ -40,8 +40,11 @@
                 <span></span>
             @endif
 
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button type="button" id="partager-btn" class="inline-flex items-center justify-center gap-2 rounded-lg bg-or-500 px-5 py-2.5 text-sm font-semibold text-stade-950 hover:bg-or-400 focus:outline-none focus:ring-2 focus:ring-or-500/50 focus:ring-offset-2 transition">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <button type="button" id="copier-lien-btn" class="text-sm font-medium text-stade-600 hover:text-stade-950 transition underline decoration-dotted underline-offset-4">
+                    Copier le lien
+                </button>
+                <button type="button" id="partager-btn" class="inline-flex items-center justify-center gap-2 rounded-lg bg-or-500 px-5 py-2.5 text-sm font-semibold text-stade-950 hover:bg-or-400 focus:outline-none focus:ring-2 focus:ring-or-500/50 focus:ring-offset-2 transition disabled:opacity-60">
                     <svg id="partager-icon" class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="15" cy="4.5" r="2.25" />
                         <circle cx="5" cy="10" r="2.25" />
@@ -49,7 +52,7 @@
                         <line x1="7" y1="8.8" x2="13" y2="5.7" />
                         <line x1="7" y1="11.2" x2="13" y2="14.3" />
                     </svg>
-                    <span id="partager-label">Partager</span>
+                    <span id="partager-label">Partager le PDF</span>
                 </button>
                 <button type="button" onclick="window.print()" class="inline-flex items-center justify-center gap-2 rounded-lg border border-stade-700/20 bg-white px-5 py-2.5 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 focus:outline-none focus:ring-2 focus:ring-or-500/50 focus:ring-offset-2 transition">
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
@@ -117,26 +120,18 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                var btn = document.getElementById('partager-btn');
-                var icon = document.getElementById('partager-icon');
-                var label = document.getElementById('partager-label');
-                if (!btn) return;
+                var pdfUrl = {!! \Illuminate\Support\Js::from(route('commandes.bon-livraison.pdf.public', $commande->partage_token)) !!};
+                var lienUrl = {!! \Illuminate\Support\Js::from(route('commandes.bon-livraison.public', $commande->partage_token)) !!};
+                var pdfFilename = {!! \Illuminate\Support\Js::from('bon-livraison-'.$commande->reference.'.pdf') !!};
+                var shareTitle = {!! \Illuminate\Support\Js::from('Bon de livraison '.$commande->reference.' — OR SPORT') !!};
+                var shareText = {!! \Illuminate\Support\Js::from('Bon de livraison '.$commande->reference.' pour '.$commande->client->nom_complet) !!};
+                var checkIconPath = '<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />';
 
-                var shareData = {
-                    title: {!! \Illuminate\Support\Js::from('Bon de livraison '.$commande->reference.' — OR SPORT') !!},
-                    text: {!! \Illuminate\Support\Js::from('Bon de livraison '.$commande->reference.' pour '.$commande->client->nom_complet) !!},
-                    url: {!! \Illuminate\Support\Js::from(route('commandes.bon-livraison.public', $commande->partage_token)) !!}
-                };
-
-                var defaultLabel = label.textContent;
-                var defaultIcon = icon.innerHTML;
-                var checkIcon = '<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />';
-
-                function confirmerCopie() {
-                    label.textContent = 'Lien copié !';
+                function etatSucces(btn, label, icon, defaultLabel, defaultIcon, texte) {
+                    label.textContent = texte;
                     icon.setAttribute('fill', 'currentColor');
                     icon.setAttribute('stroke', 'none');
-                    icon.innerHTML = checkIcon;
+                    icon.innerHTML = checkIconPath;
                     btn.classList.remove('bg-or-500', 'hover:bg-or-400', 'text-stade-950');
                     btn.classList.add('bg-livree-500', 'text-white');
 
@@ -150,21 +145,79 @@
                     }, 2000);
                 }
 
-                btn.addEventListener('click', async function () {
-                    if (navigator.share) {
+                function telechargerBlob(blob, filename) {
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+
+                // Bouton « Copier le lien » — option secondaire, indépendante
+                // du partage de fichier ci-dessous.
+                var copierBtn = document.getElementById('copier-lien-btn');
+                if (copierBtn) {
+                    copierBtn.addEventListener('click', async function () {
+                        var texteOriginal = copierBtn.textContent;
                         try {
-                            await navigator.share(shareData);
+                            await navigator.clipboard.writeText(lienUrl);
+                            copierBtn.textContent = 'Lien copié !';
                         } catch (erreur) {
-                            // Partage annulé par l'utilisateur ou indisponible : rien à faire.
+                            window.prompt('Copiez ce lien :', lienUrl);
                         }
-                        return;
-                    }
+                        setTimeout(function () {
+                            copierBtn.textContent = texteOriginal;
+                        }, 2000);
+                    });
+                }
+
+                // Bouton « Partager le PDF » — génère un vrai fichier PDF
+                // côté serveur et le partage via l'API Web Share (fichier
+                // joint, pas juste un lien) sur les navigateurs qui
+                // supportent le partage de fichiers. Sinon, télécharge
+                // directement le PDF (pas de boîte de dialogue d'impression).
+                var partagerBtn = document.getElementById('partager-btn');
+                var icon = document.getElementById('partager-icon');
+                var label = document.getElementById('partager-label');
+                if (!partagerBtn) return;
+
+                var defaultLabel = label.textContent;
+                var defaultIcon = icon.innerHTML;
+
+                partagerBtn.addEventListener('click', async function () {
+                    partagerBtn.disabled = true;
+                    label.textContent = 'Préparation du PDF…';
 
                     try {
-                        await navigator.clipboard.writeText(shareData.url);
-                        confirmerCopie();
+                        var reponse = await fetch(pdfUrl);
+                        if (!reponse.ok) {
+                            throw new Error('Échec de génération du PDF');
+                        }
+                        var blob = await reponse.blob();
+                        var fichier = new File([blob], pdfFilename, { type: 'application/pdf' });
+
+                        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                            await navigator.share({ files: [fichier], title: shareTitle, text: shareText });
+                            etatSucces(partagerBtn, label, icon, defaultLabel, defaultIcon, 'Partagé !');
+                        } else {
+                            telechargerBlob(blob, pdfFilename);
+                            etatSucces(partagerBtn, label, icon, defaultLabel, defaultIcon, 'PDF téléchargé !');
+                        }
                     } catch (erreur) {
-                        window.prompt('Copiez ce lien :', shareData.url);
+                        if (erreur && erreur.name === 'AbortError') {
+                            // Partage annulé par l'utilisateur : rien à faire.
+                            label.textContent = defaultLabel;
+                        } else {
+                            // Échec réseau ou autre : repli sur un lien direct
+                            // vers le PDF, que le navigateur téléchargera.
+                            window.location.href = pdfUrl;
+                            label.textContent = defaultLabel;
+                        }
+                    } finally {
+                        partagerBtn.disabled = false;
                     }
                 });
             });
