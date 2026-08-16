@@ -100,13 +100,73 @@
                             Bon de livraison
                         </a>
                     </div>
-                    <div>
+                    <div class="flex flex-wrap items-center gap-2" x-data="{ confirmationSuppression: false }">
                         <a href="{{ route('commandes.edit', $commande) }}" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-stade-700/20 bg-white px-6 py-3 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
                             Modifier la commande
                         </a>
+
+                        <form method="POST" action="{{ route('commandes.destroy', $commande) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" x-on:click="confirmationSuppression = true" class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-medium text-retard-600/70 hover:text-retard-600 hover:bg-retard-500/5 transition">
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482 41.03 41.03 0 00-2.365-.298V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                                </svg>
+                                Supprimer
+                            </button>
+
+                            {{-- Modale de confirmation (remplace window.confirm()) --}}
+                            <div
+                                x-show="confirmationSuppression"
+                                x-on:keydown.escape.window="confirmationSuppression = false"
+                                class="fixed inset-0 z-50 flex items-center justify-center px-4"
+                                style="display: none;"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="confirmation-suppression-titre"
+                            >
+                                <div
+                                    x-show="confirmationSuppression"
+                                    x-on:click="confirmationSuppression = false"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0"
+                                    x-transition:enter-end="opacity-100"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100"
+                                    x-transition:leave-end="opacity-0"
+                                    class="absolute inset-0 bg-stade-950/60 backdrop-blur-sm"
+                                ></div>
+
+                                <div
+                                    x-show="confirmationSuppression"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                                    class="relative w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl p-6"
+                                >
+                                    <h3 id="confirmation-suppression-titre" class="font-display text-lg tracking-tight text-stade-950">
+                                        Supprimer la commande
+                                    </h3>
+                                    <p class="mt-2 text-sm text-stade-600">
+                                        Supprimer la commande {{ $commande->reference }} ? Elle pourra être restaurée depuis la corbeille.
+                                    </p>
+                                    <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                                        <button type="button" x-on:click="confirmationSuppression = false" class="inline-flex items-center justify-center rounded-lg border border-stade-700/20 bg-white px-5 py-2.5 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
+                                            Annuler
+                                        </button>
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-retard-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-retard-600 focus:outline-none focus:ring-2 focus:ring-retard-500/50 focus:ring-offset-2 transition">
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 @else
-                    <div class="flex flex-col sm:flex-row gap-3" x-data="{ confirmationLivraison: false }">
+                    <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3" x-data="{ confirmationLivraison: false, confirmationSuppression: false }">
                         <form method="POST" action="{{ route('commandes.livrer', $commande) }}" class="sm:flex-1">
                             @csrf
                             @method('PATCH')
@@ -169,6 +229,66 @@
                         <a href="{{ route('commandes.edit', $commande) }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-stade-700/20 bg-white px-6 py-3 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
                             Modifier
                         </a>
+
+                        <form method="POST" action="{{ route('commandes.destroy', $commande) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" x-on:click="confirmationSuppression = true" class="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg px-4 py-3 text-sm font-medium text-retard-600/70 hover:text-retard-600 hover:bg-retard-500/5 transition">
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482 41.03 41.03 0 00-2.365-.298V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                                </svg>
+                                Supprimer
+                            </button>
+
+                            {{-- Modale de confirmation (remplace window.confirm()) --}}
+                            <div
+                                x-show="confirmationSuppression"
+                                x-on:keydown.escape.window="confirmationSuppression = false"
+                                class="fixed inset-0 z-50 flex items-center justify-center px-4"
+                                style="display: none;"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="confirmation-suppression-titre"
+                            >
+                                <div
+                                    x-show="confirmationSuppression"
+                                    x-on:click="confirmationSuppression = false"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0"
+                                    x-transition:enter-end="opacity-100"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100"
+                                    x-transition:leave-end="opacity-0"
+                                    class="absolute inset-0 bg-stade-950/60 backdrop-blur-sm"
+                                ></div>
+
+                                <div
+                                    x-show="confirmationSuppression"
+                                    x-transition:enter="ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave="ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                                    class="relative w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl p-6"
+                                >
+                                    <h3 id="confirmation-suppression-titre" class="font-display text-lg tracking-tight text-stade-950">
+                                        Supprimer la commande
+                                    </h3>
+                                    <p class="mt-2 text-sm text-stade-600">
+                                        Supprimer la commande {{ $commande->reference }} ? Elle pourra être restaurée depuis la corbeille.
+                                    </p>
+                                    <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                                        <button type="button" x-on:click="confirmationSuppression = false" class="inline-flex items-center justify-center rounded-lg border border-stade-700/20 bg-white px-5 py-2.5 text-sm font-semibold text-stade-700 hover:bg-stade-950/5 transition">
+                                            Annuler
+                                        </button>
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-retard-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-retard-600 focus:outline-none focus:ring-2 focus:ring-retard-500/50 focus:ring-offset-2 transition">
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 @endif
 

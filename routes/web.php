@@ -19,11 +19,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/commandes', [CommandeController::class, 'index'])->name('commandes.index');
     Route::get('/commandes/creer', [CommandeController::class, 'create'])->name('commandes.create');
     Route::get('/commandes/livrees', [CommandeController::class, 'livrees'])->name('commandes.livrees');
+    Route::get('/commandes/corbeille', [CommandeController::class, 'corbeille'])->name('commandes.corbeille');
     Route::post('/commandes', [CommandeController::class, 'store'])->name('commandes.store');
     Route::get('/commandes/{commande}', [CommandeController::class, 'show'])->name('commandes.show');
     Route::get('/commandes/{commande}/modifier', [CommandeController::class, 'edit'])->name('commandes.edit');
     Route::patch('/commandes/{commande}', [CommandeController::class, 'update'])->name('commandes.update');
+    Route::delete('/commandes/{commande}', [CommandeController::class, 'destroy'])->name('commandes.destroy');
     Route::patch('/commandes/{commande}/livrer', [CommandeController::class, 'marquerLivree'])->name('commandes.livrer');
+    Route::patch('/commandes/{commande}/restaurer', [CommandeController::class, 'restaurer'])->name('commandes.restaurer');
+    Route::delete('/commandes/{commande}/definitif', [CommandeController::class, 'forceDelete'])->name('commandes.force-delete');
     Route::get('/commandes/{commande}/bon-livraison', [CommandeController::class, 'bonLivraison'])->name('commandes.bon-livraison');
     Route::get('/commandes/{commande}/bon-livraison/pdf', [CommandeController::class, 'bonLivraisonPdf'])->name('commandes.bon-livraison.pdf');
     Route::post('/notifications/push-subscribe', [PushSubscriptionController::class, 'store'])->name('notifications.push-subscribe');

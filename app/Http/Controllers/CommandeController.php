@@ -208,6 +208,53 @@ class CommandeController extends Controller
             ->with('success', "Commande {$commande->reference} marquée comme livrée.");
     }
 
+    public function destroy(Commande $commande): RedirectResponse
+    {
+        $reference = $commande->reference;
+        $commande->delete();
+
+        return redirect()
+            ->route('commandes.index')
+            ->with('success', "Commande {$reference} déplacée vers la corbeille.");
+    }
+
+    public function corbeille(): View
+    {
+        $commandes = Commande::onlyTrashed()
+            ->with('client')
+            ->orderByDesc('deleted_at')
+            ->paginate(18);
+
+        return view('commandes.corbeille', [
+            'commandes' => $commandes,
+        ]);
+    }
+
+    // Le paramètre n'est volontairement pas typé Commande : la résolution de
+    // route implicite ignore les commandes supprimées (comportement par
+    // défaut de SoftDeletes), il faut donc aller chercher explicitement
+    // avec withTrashed().
+    public function restaurer(string $commande): RedirectResponse
+    {
+        $commande = Commande::onlyTrashed()->findOrFail($commande);
+        $commande->restore();
+
+        return redirect()
+            ->route('commandes.corbeille')
+            ->with('success', "Commande {$commande->reference} restaurée.");
+    }
+
+    public function forceDelete(string $commande): RedirectResponse
+    {
+        $commande = Commande::onlyTrashed()->findOrFail($commande);
+        $reference = $commande->reference;
+        $commande->forceDelete();
+
+        return redirect()
+            ->route('commandes.corbeille')
+            ->with('success', "Commande {$reference} supprimée définitivement.");
+    }
+
     public function bonLivraison(Commande $commande): View
     {
         $commande->load('client');
