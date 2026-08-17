@@ -77,7 +77,7 @@
             <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm overflow-hidden">
                 <div class="px-6 py-5 border-b border-stade-950/5 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full {{ $alertes->isEmpty() ? 'bg-livree-500/10' : 'bg-retard-500/10' }} flex items-center justify-center shrink-0">
+                        <div class="w-12 h-12 rounded-full {{ $alertes->isEmpty() ? 'bg-livree-500/10' : 'bg-retard-500/10 animate-pulse-alerte' }} flex items-center justify-center shrink-0">
                             <svg class="w-6 h-6 {{ $alertes->isEmpty() ? 'text-livree-600' : 'text-retard-500' }}" viewBox="0 0 20 20" fill="currentColor">
                                 @if($alertes->isEmpty())
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
