@@ -16,6 +16,7 @@
                     'referenceHelp' => "Générée automatiquement à l'enregistrement.",
                     'submitLabel' => 'Créer la commande',
                     'cancelUrl' => route('commandes.index'),
+                    'showArticles' => true,
                 ])
             </form>
         </div>

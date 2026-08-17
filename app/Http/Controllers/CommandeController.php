@@ -22,7 +22,7 @@ class CommandeController extends Controller
         $typeArticle = $request->string('type_article')->value() ?: null;
 
         $commandes = Commande::query()
-            ->with('client')
+            ->with(['client', 'articles'])
             ->when($recherche, function ($query) use ($recherche) {
                 $query->where(function ($sub) use ($recherche) {
                     $sub->where('reference', 'like', "%{$recherche}%")
@@ -35,7 +35,7 @@ class CommandeController extends Controller
                 });
             })
             ->when($statut, fn ($query) => $query->where('statut', $statut))
-            ->when($typeArticle, fn ($query) => $query->where('type_article', $typeArticle))
+            ->when($typeArticle, fn ($query) => $query->whereHas('articles', fn ($articles) => $articles->where('type_article', $typeArticle)))
             ->orderByRaw("(statut NOT IN ('livree', 'annulee') AND date_livraison_prevue <= CURDATE()) DESC")
             ->orderBy('date_livraison_prevue')
             ->paginate(18)
@@ -51,7 +51,7 @@ class CommandeController extends Controller
 
     public function show(Commande $commande): View
     {
-        $commande->load('client');
+        $commande->load(['client', 'articles']);
 
         return view('commandes.show', [
             'commande' => $commande,
@@ -70,7 +70,7 @@ class CommandeController extends Controller
     {
         $donnees = $request->validated();
 
-        $commande = DB::transaction(function () use ($donnees, $request) {
+        $commande = DB::transaction(function () use ($donnees) {
             if ($donnees['client_mode'] === 'nouveau') {
                 $client = Client::create([
                     'nom' => $donnees['client_nom'],
@@ -81,21 +81,30 @@ class CommandeController extends Controller
                 $client = Client::findOrFail($donnees['client_id']);
             }
 
-            return Commande::create([
+            $commande = Commande::create([
                 'reference' => Commande::prochaineReference(),
                 'client_id' => $client->id,
-                'type_article' => $donnees['type_article'],
-                'qualite' => $donnees['qualite'],
-                'modele' => $donnees['modele'],
-                'nom_equipe' => $donnees['nom_equipe'] ?? null,
-                'badge' => $request->boolean('badge'),
-                'quantite' => $donnees['quantite'],
                 'statut' => $donnees['statut'],
                 'montant_total' => $donnees['montant_total'],
                 'avance_versee' => $donnees['avance_versee'] ?? 0,
                 'date_commande' => $donnees['date_commande'],
                 'date_livraison_prevue' => $donnees['date_livraison_prevue'],
             ]);
+
+            // Dans la même transaction que la commande : si une ligne
+            // échoue, la commande ne doit pas rester enregistrée sans
+            // aucun article.
+            foreach ($donnees['articles'] as $ligne) {
+                $commande->articles()->create([
+                    'type_article' => $ligne['type_article'],
+                    'qualite' => $ligne['qualite'],
+                    'modele' => $ligne['modele'],
+                    'nom_equipe' => $ligne['nom_equipe'] ?? null,
+                    'quantite' => $ligne['quantite'],
+                ]);
+            }
+
+            return $commande;
         });
 
         return redirect()
@@ -117,7 +126,7 @@ class CommandeController extends Controller
     {
         $donnees = $request->validated();
 
-        DB::transaction(function () use ($donnees, $request, $commande) {
+        DB::transaction(function () use ($donnees, $commande) {
             if ($donnees['client_mode'] === 'nouveau') {
                 $client = Client::create([
                     'nom' => $donnees['client_nom'],
@@ -137,12 +146,6 @@ class CommandeController extends Controller
 
             $commande->update([
                 'client_id' => $client->id,
-                'type_article' => $donnees['type_article'],
-                'qualite' => $donnees['qualite'],
-                'modele' => $donnees['modele'],
-                'nom_equipe' => $donnees['nom_equipe'] ?? null,
-                'badge' => $request->boolean('badge'),
-                'quantite' => $donnees['quantite'],
                 'statut' => $donnees['statut'],
                 'montant_total' => $donnees['montant_total'],
                 'avance_versee' => $donnees['avance_versee'] ?? 0,
@@ -166,7 +169,7 @@ class CommandeController extends Controller
         $dateFin = $request->string('date_fin')->value() ?: null;
 
         $commandes = Commande::query()
-            ->with('client')
+            ->with(['client', 'articles'])
             ->where('statut', 'livree')
             ->when($client, function ($query) use ($client) {
                 $query->whereHas('client', function ($sub) use ($client) {
@@ -176,8 +179,8 @@ class CommandeController extends Controller
                         ->orWhereRaw("CONCAT(nom, ' ', prenom) LIKE ?", ["%{$client}%"]);
                 });
             })
-            ->when($qualite, fn ($query) => $query->where('qualite', $qualite))
-            ->when($typeArticle, fn ($query) => $query->where('type_article', $typeArticle))
+            ->when($qualite, fn ($query) => $query->whereHas('articles', fn ($articles) => $articles->where('qualite', $qualite)))
+            ->when($typeArticle, fn ($query) => $query->whereHas('articles', fn ($articles) => $articles->where('type_article', $typeArticle)))
             ->when($dateDebut, fn ($query) => $query->whereDate('date_livraison_effective', '>=', $dateDebut))
             ->when($dateFin, fn ($query) => $query->whereDate('date_livraison_effective', '<=', $dateFin))
             ->orderByDesc('date_livraison_effective')
@@ -221,7 +224,7 @@ class CommandeController extends Controller
     public function corbeille(): View
     {
         $commandes = Commande::onlyTrashed()
-            ->with('client')
+            ->with(['client', 'articles'])
             ->orderByDesc('deleted_at')
             ->paginate(18);
 
@@ -257,7 +260,7 @@ class CommandeController extends Controller
 
     public function bonLivraison(Commande $commande): View
     {
-        $commande->load('client');
+        $commande->load(['client', 'articles']);
 
         return view('commandes.bon-livraison', [
             'commande' => $commande,
@@ -266,7 +269,7 @@ class CommandeController extends Controller
 
     public function bonLivraisonPdf(Commande $commande): Response
     {
-        $commande->load('client');
+        $commande->load(['client', 'articles']);
 
         $pdf = Pdf::loadView('commandes.bon-livraison-pdf', [
             'commande' => $commande,

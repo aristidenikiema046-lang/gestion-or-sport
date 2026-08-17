@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommandeArticleController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -28,6 +29,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::patch('/commandes/{commande}/livrer', [CommandeController::class, 'marquerLivree'])->name('commandes.livrer');
     Route::patch('/commandes/{commande}/restaurer', [CommandeController::class, 'restaurer'])->name('commandes.restaurer');
     Route::delete('/commandes/{commande}/definitif', [CommandeController::class, 'forceDelete'])->name('commandes.force-delete');
+    Route::post('/commandes/{commande}/articles', [CommandeArticleController::class, 'store'])->name('commandes.articles.store');
+    Route::patch('/commandes/{commande}/articles/{article}', [CommandeArticleController::class, 'update'])->name('commandes.articles.update');
+    Route::delete('/commandes/{commande}/articles/{article}', [CommandeArticleController::class, 'destroy'])->name('commandes.articles.destroy');
     Route::get('/commandes/{commande}/bon-livraison', [CommandeController::class, 'bonLivraison'])->name('commandes.bon-livraison');
     Route::get('/commandes/{commande}/bon-livraison/pdf', [CommandeController::class, 'bonLivraisonPdf'])->name('commandes.bon-livraison.pdf');
     Route::post('/notifications/push-subscribe', [PushSubscriptionController::class, 'store'])->name('notifications.push-subscribe');

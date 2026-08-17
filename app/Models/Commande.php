@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -49,12 +50,6 @@ class Commande extends Model
     protected $fillable = [
         'reference',
         'client_id',
-        'type_article',
-        'qualite',
-        'modele',
-        'nom_equipe',
-        'badge',
-        'quantite',
         'statut',
         'montant_total',
         'avance_versee',
@@ -67,7 +62,6 @@ class Commande extends Model
         'date_commande' => 'datetime',
         'date_livraison_prevue' => 'date',
         'date_livraison_effective' => 'datetime',
-        'badge' => 'boolean',
         'montant_total' => 'decimal:2',
         'avance_versee' => 'decimal:2',
     ];
@@ -84,6 +78,11 @@ class Commande extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(CommandeArticle::class);
     }
 
     // Prochaine référence disponible, au format CMD-0001.
@@ -158,5 +157,37 @@ class Commande extends Model
             (float) $this->avance_versee >= (float) $this->montant_total => 'solde',
             default => 'acompte_verse',
         };
+    }
+
+    // Résumé lisible des articles, pour les listes (index, historique,
+    // dashboard) qui n'ont plus la place d'afficher chaque ligne en détail
+    // depuis qu'une commande peut en contenir plusieurs. À charger via
+    // with('articles') dans la requête appelante pour éviter le N+1.
+    public function getResumeArticlesAttribute(): string
+    {
+        $articles = $this->articles;
+
+        if ($articles->isEmpty()) {
+            return '—';
+        }
+
+        if ($articles->count() === 1) {
+            return "{$articles->first()->type_article} {$articles->first()->qualite}";
+        }
+
+        $types = $articles->pluck('type_article')->unique();
+
+        $typesResume = $types->count() <= 2
+            ? $types->implode(', ')
+            : $types->take(2)->implode(', ').', …';
+
+        return $articles->count().' articles ('.$typesResume.')';
+    }
+
+    // Somme des quantités de toutes les lignes — remplace l'ancienne
+    // quantité unique de la commande.
+    public function getQuantiteTotaleAttribute(): int
+    {
+        return (int) $this->articles->sum('quantite');
     }
 }

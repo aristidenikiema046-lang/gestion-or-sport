@@ -17,6 +17,7 @@
                     'referenceHelp' => 'La référence ne peut pas être modifiée.',
                     'submitLabel' => 'Enregistrer les modifications',
                     'cancelUrl' => route('commandes.show', $commande),
+                    'showArticles' => false,
                 ])
             </form>
         </div>

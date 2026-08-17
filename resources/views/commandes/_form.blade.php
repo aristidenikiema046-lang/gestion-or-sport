@@ -64,70 +64,11 @@
         </div>
     </section>
 
-    {{-- Article --}}
-    <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm p-6 sm:p-8">
-        <h3 class="font-display text-lg tracking-tight text-stade-950 mb-4">Détails de l'article</h3>
-
-        <div class="space-y-4">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div>
-                    <x-input-label for="type_article" value="Type d'article" />
-                    <select id="type_article" name="type_article"
-                        class="mt-1 block w-full border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30 @error('type_article') border-retard-500 @enderror">
-                        <option value="">Choisir…</option>
-                        @foreach(\App\Models\Commande::TYPES_ARTICLE as $valeur => $label)
-                            <option value="{{ $valeur }}" @selected(old('type_article', $commande?->type_article) === $valeur)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('type_article')" class="mt-1" />
-                </div>
-                <div>
-                    <x-input-label for="qualite" value="Qualité" />
-                    <select id="qualite" name="qualite"
-                        class="mt-1 block w-full border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30 @error('qualite') border-retard-500 @enderror">
-                        <option value="">Choisir…</option>
-                        @foreach(\App\Models\Commande::QUALITES as $valeur => $label)
-                            <option value="{{ $valeur }}" @selected(old('qualite', $commande?->qualite) === $valeur)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('qualite')" class="mt-1" />
-                </div>
-                <div>
-                    <x-input-label for="modele" value="Modèle" />
-                    <select id="modele" name="modele"
-                        class="mt-1 block w-full border bg-white border-stade-700/15 text-stade-950 rounded-lg shadow-sm py-2.5 pl-3 pr-9 focus:outline-none focus:border-or-500 focus:ring-2 focus:ring-or-500/30 @error('modele') border-retard-500 @enderror">
-                        <option value="">Choisir…</option>
-                        @foreach(\App\Models\Commande::MODELES as $valeur => $label)
-                            <option value="{{ $valeur }}" @selected(old('modele', $commande?->modele) === $valeur)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('modele')" class="mt-1" />
-                </div>
-                <div>
-                    <x-input-label for="quantite" value="Quantité" />
-                    <x-text-input id="quantite" name="quantite" type="number" min="1" value="{{ old('quantite', $commande?->quantite ?? 1) }}"
-                        class="mt-1 block w-full @error('quantite') border-retard-500 @enderror" />
-                    <x-input-error :messages="$errors->get('quantite')" class="mt-1" />
-                </div>
-            </div>
-
-            <div class="flex items-center">
-                <label class="inline-flex items-center gap-2 py-1 cursor-pointer select-none">
-                    <input type="hidden" name="badge" value="0">
-                    <input type="checkbox" name="badge" value="1" @checked(old('badge', $commande?->badge))
-                        class="w-5 h-5 rounded border-stade-700/30 text-or-500 focus:ring-2 focus:ring-or-500/40" />
-                    <span class="text-sm text-stade-700">Badge officiel</span>
-                </label>
-            </div>
-
-            <div>
-                <x-input-label for="nom_equipe" value="Nom de l'équipe (optionnel)" />
-                <x-text-input id="nom_equipe" name="nom_equipe" type="text" value="{{ old('nom_equipe', $commande?->nom_equipe) }}"
-                    class="mt-1 block w-full @error('nom_equipe') border-retard-500 @enderror" />
-                <x-input-error :messages="$errors->get('nom_equipe')" class="mt-1" />
-            </div>
-        </div>
-    </section>
+    {{-- Articles (uniquement à la création — voir commandes/_articles-form.blade.php ;
+         sur une commande existante, les lignes se gèrent depuis commandes.show) --}}
+    @if($showArticles)
+        @include('commandes._articles-form')
+    @endif
 
     {{-- Paiement --}}
     <section class="bg-white rounded-2xl border border-stade-950/5 shadow-sm p-6 sm:p-8"

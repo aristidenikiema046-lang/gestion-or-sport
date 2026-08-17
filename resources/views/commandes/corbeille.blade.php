@@ -77,7 +77,7 @@
                                 <tr class="text-left text-xs font-semibold text-stade-600/70 uppercase tracking-wide">
                                     <th class="px-6 py-3">Référence</th>
                                     <th class="px-6 py-3">Client</th>
-                                    <th class="px-6 py-3">Type</th>
+                                    <th class="px-6 py-3">Articles</th>
                                     <th class="px-6 py-3">Supprimée le</th>
                                     <th class="px-6 py-3"></th>
                                 </tr>
@@ -87,7 +87,7 @@
                                     <tr class="hover:bg-stade-950/[0.02] transition" x-data="{ confirmationSuppressionDefinitive: false }">
                                         <td class="px-6 py-4 font-medium text-stade-950 whitespace-nowrap">{{ $commande->reference }}</td>
                                         <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->client->nom_complet }}</td>
-                                        <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->type_article }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->resume_articles }}</td>
                                         <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->deleted_at->format('d/m/Y à H:i') }}</td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center justify-end gap-2">

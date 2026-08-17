@@ -130,7 +130,7 @@
                                                 <p class="font-medium text-stade-950 truncate">{{ $commande->client->nom_complet }}</p>
                                                 <span class="text-xs text-stade-600/60 shrink-0">{{ $commande->reference }}</span>
                                             </div>
-                                            <p class="text-sm text-stade-600 truncate">Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }}</p>
+                                            <p class="text-sm text-stade-600 truncate">{{ $commande->resume_articles }}</p>
                                         </div>
                                         <div class="flex items-center gap-2 shrink-0">
                                             <x-statut-badge :statut="$commande->statut" class="shrink-0" />
@@ -256,7 +256,7 @@
                                         <x-statut-badge :statut="$commande->statut" class="shrink-0" />
                                     </div>
                                     <div class="mt-2.5 flex items-center justify-between gap-3">
-                                        <p class="text-sm text-stade-700 truncate">Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }}</p>
+                                        <p class="text-sm text-stade-700 truncate">{{ $commande->resume_articles }}</p>
                                         <span class="shrink-0 text-xs text-stade-600">{{ $commande->date_livraison_prevue->format('d/m/Y') }}</span>
                                     </div>
                                 </a>
@@ -270,8 +270,7 @@
                             <thead>
                                 <tr class="text-left text-xs font-semibold text-stade-600/70 uppercase tracking-wide">
                                     <th class="px-6 py-3">Client</th>
-                                    <th class="px-6 py-3">Qualité</th>
-                                    <th class="px-6 py-3">Modèle</th>
+                                    <th class="px-6 py-3">Articles</th>
                                     <th class="px-6 py-3">Statut</th>
                                     <th class="px-6 py-3">Livraison prévue</th>
                                     <th class="px-6 py-3"></th>
@@ -284,8 +283,7 @@
                                             <div class="font-medium text-stade-950">{{ $commande->client->nom_complet }}</div>
                                             <div class="text-xs text-stade-600/60">{{ $commande->reference }}</div>
                                         </td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->qualite }}</td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->modele }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->resume_articles }}</td>
                                         <td class="px-6 py-4"><x-statut-badge :statut="$commande->statut" /></td>
                                         <td class="px-6 py-4 text-stade-700">{{ $commande->date_livraison_prevue->format('d/m/Y') }}</td>
                                         <td class="px-6 py-4 text-right">

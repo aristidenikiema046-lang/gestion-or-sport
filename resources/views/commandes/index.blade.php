@@ -130,8 +130,8 @@
                                     </div>
 
                                     <p class="mt-2.5 text-sm text-stade-700">
-                                        {{ $commande->type_article }}
-                                        <span class="text-stade-600/60">&middot; Qualité {{ $commande->qualite }} &middot; {{ $commande->modele }} &middot; Qté {{ $commande->quantite }}</span>
+                                        {{ $commande->resume_articles }}
+                                        <span class="text-stade-600/60">&middot; Qté totale {{ $commande->quantite_totale }}</span>
                                     </p>
 
                                     <div class="mt-2.5 flex items-center justify-between gap-3">
@@ -161,9 +161,7 @@
                                 <tr class="text-left text-xs font-semibold text-stade-600/70 uppercase tracking-wide">
                                     <th class="px-6 py-3">Référence</th>
                                     <th class="px-6 py-3">Client</th>
-                                    <th class="px-6 py-3">Type</th>
-                                    <th class="px-6 py-3">Qualité</th>
-                                    <th class="px-6 py-3">Modèle</th>
+                                    <th class="px-6 py-3">Articles</th>
                                     <th class="px-6 py-3">Qté</th>
                                     <th class="px-6 py-3">Statut</th>
                                     <th class="px-6 py-3">Paiement</th>
@@ -176,10 +174,8 @@
                                     <tr class="hover:bg-stade-950/[0.02] transition">
                                         <td class="px-6 py-4 font-medium text-stade-950 whitespace-nowrap">{{ $commande->reference }}</td>
                                         <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->client->nom_complet }}</td>
-                                        <td class="px-6 py-4 text-stade-700 whitespace-nowrap">{{ $commande->type_article }}</td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->qualite }}</td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->modele }}</td>
-                                        <td class="px-6 py-4 text-stade-700">{{ $commande->quantite }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->resume_articles }}</td>
+                                        <td class="px-6 py-4 text-stade-700">{{ $commande->quantite_totale }}</td>
                                         <td class="px-6 py-4"><x-statut-badge :statut="$commande->statut" /></td>
                                         <td class="px-6 py-4"><x-statut-paiement-badge :statut="$commande->statut_paiement" /></td>
                                         <td class="px-6 py-4 whitespace-nowrap">

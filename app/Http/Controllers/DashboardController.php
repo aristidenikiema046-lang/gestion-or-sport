@@ -11,7 +11,7 @@ class DashboardController extends Controller
     {
         $alertes = Commande::whereNotIn('statut', ['livree', 'annulee'])
             ->where('date_livraison_prevue', '<=', now()->addDays(2)->endOfDay())
-            ->with('client')
+            ->with(['client', 'articles'])
             ->orderBy('date_livraison_prevue')
             ->get()
             ->filter(fn (Commande $commande) => $commande->en_retard || $commande->echeance_aujourdhui || $commande->approche)
@@ -25,7 +25,7 @@ class DashboardController extends Controller
             fn (string $label, string $statut) => [$statut => $repartition->get($statut, 0)]
         );
 
-        $recentes = Commande::with('client')->latest()->take(8)->get();
+        $recentes = Commande::with(['client', 'articles'])->latest()->take(8)->get();
 
         $paiementsEnAttente = Commande::where('statut', '!=', 'annulee')
             ->whereColumn('avance_versee', '<', 'montant_total')

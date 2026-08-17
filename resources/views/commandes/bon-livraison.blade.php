@@ -101,13 +101,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b border-stade-950/10">
-                            <td class="py-4 text-stade-950 font-medium">{{ $commande->type_article }}</td>
-                            <td class="py-4 text-stade-950 font-medium">{{ $commande->qualite }}</td>
-                            <td class="py-4 text-stade-700">{{ $commande->modele }}</td>
-                            <td class="py-4 text-stade-700">{{ $commande->nom_equipe ?? '—' }}</td>
-                            <td class="py-4 text-stade-950 font-semibold text-right">{{ $commande->quantite }}</td>
-                        </tr>
+                        @foreach($commande->articles as $article)
+                            <tr class="border-b border-stade-950/10">
+                                <td class="py-4 text-stade-950 font-medium">{{ $article->type_article }}</td>
+                                <td class="py-4 text-stade-950 font-medium">{{ $article->qualite }}</td>
+                                <td class="py-4 text-stade-700">{{ $article->modele }}</td>
+                                <td class="py-4 text-stade-700">{{ $article->nom_equipe ?? '—' }}</td>
+                                <td class="py-4 text-stade-950 font-semibold text-right">{{ $article->quantite }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

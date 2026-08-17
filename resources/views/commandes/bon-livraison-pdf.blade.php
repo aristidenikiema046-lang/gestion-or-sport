@@ -99,6 +99,17 @@
             border-collapse: collapse;
         }
 
+        /* Répète l'en-tête sur chaque page si les lignes d'articles
+           débordent d'une page — évite un tableau sans repères sur la
+           suite du document quand une commande a beaucoup de lignes. */
+        table.articles thead {
+            display: table-header-group;
+        }
+
+        table.articles tr {
+            page-break-inside: avoid;
+        }
+
         table.articles th {
             text-align: left;
             font-size: 9px;
@@ -189,13 +200,15 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="principal">{{ $commande->type_article }}</td>
-                <td class="principal">{{ $commande->qualite }}</td>
-                <td>{{ $commande->modele }}</td>
-                <td>{{ $commande->nom_equipe ?? '—' }}</td>
-                <td class="qte">{{ $commande->quantite }}</td>
-            </tr>
+            @foreach($commande->articles as $article)
+                <tr>
+                    <td class="principal">{{ $article->type_article }}</td>
+                    <td class="principal">{{ $article->qualite }}</td>
+                    <td>{{ $article->modele }}</td>
+                    <td>{{ $article->nom_equipe ?? '—' }}</td>
+                    <td class="qte">{{ $article->quantite }}</td>
+                </tr>
+            @endforeach
         </tbody>
     </table>
 

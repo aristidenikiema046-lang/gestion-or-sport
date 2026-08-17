@@ -20,21 +20,25 @@ class CommandeCorbeilleTest extends TestCase
             'telephone' => '0700000000',
         ]);
 
-        return Commande::create(array_merge([
+        $commande = Commande::create(array_merge([
             'reference' => Commande::prochaineReference(),
             'client_id' => $client->id,
-            'type_article' => 'Maillots',
-            'qualite' => 'F1',
-            'modele' => 'Sublimation',
-            'nom_equipe' => 'Equipe Test',
-            'badge' => false,
-            'quantite' => 1,
             'statut' => 'en_attente',
             'montant_total' => 10000,
             'avance_versee' => 0,
             'date_commande' => now(),
             'date_livraison_prevue' => now()->addDays(5),
         ], $overrides));
+
+        $commande->articles()->create([
+            'type_article' => 'Maillots',
+            'qualite' => 'F1',
+            'modele' => 'Sublimation',
+            'nom_equipe' => 'Equipe Test',
+            'quantite' => 1,
+        ]);
+
+        return $commande;
     }
 
     public function test_un_admin_peut_supprimer_une_commande_qui_disparait_de_la_liste_et_du_show(): void

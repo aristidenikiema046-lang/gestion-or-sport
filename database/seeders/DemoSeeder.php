@@ -30,42 +30,50 @@ class DemoSeeder extends Seeder
         ]);
 
         // Une commande EN RETARD (date passée, pas livrée)
-        Commande::create([
+        $commandeEnRetard = Commande::create([
             'reference' => 'CMD-0001',
             'client_id' => $client->id,
-            'qualite' => 'F1',
-            'modele' => 'Couture',
-            'nom_equipe' => 'KOUASSI',
-            'badge' => true,
-            'quantite' => 2,
             'statut' => 'en_confection',
             'date_commande' => now()->subDays(10),
             'date_livraison_prevue' => now()->subDays(2), // en retard
         ]);
+        $commandeEnRetard->articles()->create([
+            'type_article' => 'Maillots',
+            'qualite' => 'F1',
+            'modele' => 'Couture',
+            'nom_equipe' => 'KOUASSI',
+            'quantite' => 2,
+        ]);
 
         // Une commande QUI APPROCHE (dans 1 jour)
-        Commande::create([
+        $commandeApproche = Commande::create([
             'reference' => 'CMD-0002',
             'client_id' => $client->id,
-            'qualite' => 'F2',
-            'modele' => 'Sublimation',
-            'quantite' => 1,
             'statut' => 'en_confection',
             'date_commande' => now()->subDays(3),
             'date_livraison_prevue' => now()->addDay(), // approche
         ]);
+        $commandeApproche->articles()->create([
+            'type_article' => 'Maillots',
+            'qualite' => 'F2',
+            'modele' => 'Sublimation',
+            'quantite' => 1,
+        ]);
 
         // Une commande LIVRÉE (pas d'alerte attendue)
-        Commande::create([
+        $commandeLivree = Commande::create([
             'reference' => 'CMD-0003',
             'client_id' => $client->id,
-            'qualite' => 'F1',
-            'modele' => 'Sublimation',
-            'quantite' => 3,
             'statut' => 'livree',
             'date_commande' => now()->subDays(15),
             'date_livraison_prevue' => now()->subDays(10),
             'date_livraison_effective' => now()->subDays(9),
+        ]);
+        $commandeLivree->articles()->create([
+            'type_article' => 'Maillots',
+            'qualite' => 'F1',
+            'modele' => 'Sublimation',
+            'quantite' => 3,
         ]);
     }
 }
