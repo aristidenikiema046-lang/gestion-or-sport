@@ -81,8 +81,7 @@ class CommandeController extends Controller
                 $client = Client::findOrFail($donnees['client_id']);
             }
 
-            $commande = Commande::create([
-                'reference' => Commande::prochaineReference(),
+            $commande = Commande::creerAvecReferenceUnique([
                 'client_id' => $client->id,
                 'statut' => $donnees['statut'],
                 'montant_total' => $donnees['montant_total'],

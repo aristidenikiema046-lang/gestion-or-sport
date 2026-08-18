@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -85,16 +86,38 @@ class Commande extends Model
         return $this->hasMany(CommandeArticle::class);
     }
 
-    // Prochaine référence disponible, au format CMD-0001.
+    // Prochaine référence disponible, au format CMD-0001. withTrashed() est
+    // impératif ici : une commande dans la corbeille garde sa référence en
+    // base (le soft delete ne fait que renseigner deleted_at), donc l'ignorer
+    // fait recalculer un numéro déjà pris dès qu'elle est la plus récente.
     public static function prochaineReference(): string
     {
-        $dernier = static::query()
+        $dernier = static::withTrashed()
             ->where('reference', 'like', 'CMD-%')
             ->get(['reference'])
             ->map(fn (self $commande) => (int) substr($commande->reference, 4))
             ->max() ?? 0;
 
         return 'CMD-'.str_pad((string) ($dernier + 1), 4, '0', STR_PAD_LEFT);
+    }
+
+    // Filet de sécurité en plus du calcul ci-dessus (qui devrait déjà
+    // suffire) : si une collision de référence survient malgré tout
+    // (ex. deux créations concurrentes au même instant), réessaie avec une
+    // référence fraîchement recalculée plutôt que de planter la création.
+    public static function creerAvecReferenceUnique(array $attributs, int $tentativesMax = 5): self
+    {
+        for ($tentative = 1; $tentative <= $tentativesMax; $tentative++) {
+            try {
+                return static::create(array_merge($attributs, [
+                    'reference' => static::prochaineReference(),
+                ]));
+            } catch (UniqueConstraintViolationException $e) {
+                if ($tentative === $tentativesMax) {
+                    throw $e;
+                }
+            }
+        }
     }
 
     // Est-ce que la commande est en retard (date de livraison prévue
